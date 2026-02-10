@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Oficiálna stránka SAILH – Slovenská asociácia in-line hokeja. Novinky, kluby, galéria a podujatia." />
+    <meta name="author" content="SAILH" />
+    <title>SAILH</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+    <header class="header">
+        <div class="logo">
+<picture>
+  <source 
+    srcset="
+      https://saihl.alaviks.com/logo_80.webp 1x,
+      https://saihl.alaviks.com/logo_160.webp 2x,
+      https://saihl.alaviks.com/logo_200.webp 3x
+    " 
+    type="image/webp">
+
+  <source 
+    srcset="
+      https://saihl.alaviks.com/logo_80.png 1x,
+      https://saihl.alaviks.com/logo_160.png 2x,
+      https://saihl.alaviks.com/logo_200.png 3x
+    " 
+    type="image/png">
+
+  <img 
+    src="https://saihl.alaviks.com/logo_80.png" 
+    alt="SAILH Logo" 
+    class="logo-img">
+</picture>
+</div>
+        <div class="site-title">Slovenská asociácia in-line hokeja</div>
+        <nav class="menu" role="navigation" aria-label="Hlavné menu">
+            <a href="index.html">Domov</a>
+            <a href="news.html">Novinky</a>
+            <a href="gallery.html">Galéria</a>
+            <a href="clubs.html">Kluby</a>
+            <a href="partners.html">Partnery</a>
+            <a href="donate.html">Darujte 2%</a>
+            <a href="about.html">O nás</a>
+        </nav>
+    </header>
+
+    <!-- Video Banner -->
+    <div class="video-banner">
+        <video autoplay muted loop playsinline class="banner-video">
+            <source src="https://saihl.alaviks.com/banner.webm" type="video/webm" />
+            <source src="https://saihl.alaviks.com/banner.mp4" type="video/mp4" />
+            
+        Vaše prehliadač nepodporuje prehrávanie videa.</video>
+    </div>
+
+    <div class="layout">
+        <main class="hero main-content">
+            <h1>Slovenská asociácia in-line hokeja</h1>
+            <p>Oficiálne informácie, výsledky, aktuality a podujatia.</p>
+        </main>
+
+        <aside class="rss-sidebar">
+            <div class="rss-box">
+                <h3>Svetové novinky</h3>
+                <p class="rss-source">Zdroj: MIHWA.org</p>
+                <div id="rss-feed-content"></div>
+                <div id="rss-error" class="rss-error">Chyba pri načítaní RSS.</div>
+            </div>
+        </aside>
+    </div>
+
+    <footer class="footer">
+
+    <div class="footer-grid">
+        <!-- Info -->
+        <div>
+            <h4 class="footer-title">SAILH</h4>
+            <p class="footer-text">Slovenská asociácia in-line hokeja. Oficiálny riadiaci orgán pre in-line hokej v SR. Zameranie na rozvoj mládeže a reprezentáciu.</p>
+            <div class="footer-social">
+                <a href="https://www.facebook.com/sailhsvk/" target="_blank"><i class="fab fa-facebook-square"></i></a>
+                <a href="#" target="_blank"><i class="fab fa-instagram-square"></i></a>
+                <a href="#" target="_blank"><i class="fab fa-youtube-square"></i></a>
+            </div>
+        </div>
+
+        <!-- Navigácia -->
+        <div>
+            <h4 class="footer-title">Navigácia</h4>
+            <ul class="footer-list">
+                <li><a href="about.html">O asociácii</a></li><li><a href="clubs.html">Kluby</a></li><li><a href="amaterska-liga.html">Amatérska Liga</a></li><li><a href="partners.html">Partneri</a></li><li><a href="media.html">Médiá</a></li><li><a href="calendar.html">Kalendár</a></li><li><a href="contact.html">Kontakt</a></li><li><a href="privacy-policy.html">Politika ochrany údajov</a></li>
+        </div>
+
+        <!-- Kontakt -->
+        <div>
+            <h4 class="footer-title">Kontakt</h4>
+            <p class="footer-text" style="line-height:0.9"><i class="fas fa-at icon-red"></i> pejchalr@gmail.com</p>
+            <p class="footer-text" style="line-height:0.9"><i class="fas fa-phone icon-red"></i> +421 905 627 715</p>
+            <p class="footer-text" style="line-height:0.9"><i class="fas fa-id-card icon-red"></i> IČO: 57133671</p>
+            <p class="footer-text" style="line-height:0.9"><i class="fas fa-file-alt icon-red"></i> DIČ: 2122632930</p>
+        </div>
+
+        <!-- Newsletter -->
+        <div>
+            <h4 class="footer-title">Newsletter</h4>
+            <p class="footer-text">Prihláste sa na odber noviniek:</p>
+            <input type="email" placeholder="Váš e-mail" class="footer-input">
+            <button class="footer-btn">Prihlásiť</button>
+        </div>
+    </div>
+
+    <div class="footer-bottom">© 2025 SAILH – Všetky práva vyhradené</div>
+
+</footer>
+    <!-- RSS FETCH SCRIPT -->
+    <script>
+/* Improved RSS loader with Slovak hockey terminology (Variant B) */
+async function loadRSS() {
+    const url = "https://api.rss2json.com/v1/api.json?rss_url=https://www.mihwa.org/feed/";
+    const box = document.getElementById("rss-feed-content");
+    const err = document.getElementById("rss-error");
+
+    /* Slovak translation dictionary */
+    const dict = [
+        [/World/gi, "Svet"],
+        [/Edge/gi, "Okraj"],
+        [/Back/gi, "Návrat"],
+        [/Return/gi, "Vracia sa"],
+        [/Potential/gi, "Potenciálne"],
+        [/Mini/gi, "Malý"],
+        [/Powerhouse/gi, "Silná veľmoc"],
+        [/European/gi, "Európsky"],
+        [/Family/gi, "Rodina"],
+        [/Drama/gi, "Dráma"],
+        [/Tension/gi, "Napätie"],
+        [/Opening/gi, "Otvárací"],
+        [/Masters/gi, "Masters"],
+        [/Resplendent/gi, "Pôsobiví"],
+        [/Bested/gi, "Porazení"],
+        [/Prepare/gi, "Pripravte sa"],
+        [/Coming/gi, "Prichádza"],
+        [/Wheels/gi, "Kolieskach"],
+        [/Competition/gi, "Súťaž"],
+        [/Pitch/gi, "Ihrisko"],
+        [/Haka/gi, "Haka"],
+        [/Power/gi, "Sila"],
+        [/Joins/gi, "Pridáva sa"],
+        [/Opening Match/gi, "Otvárací zápas"],
+        [/Match/gi, "Zápas"],
+        [/Final/gi, "Finále"],
+        [/Preview/gi, "Prehľad"],
+        [/Post/gi, "Článok"],
+        [/Sweden/gi, "Švédsko"],
+        [/Belgium/gi, "Belgicko"],
+        [/Germany/gi, "Nemecko"],
+        [/Australia/gi, "Austrália"],
+        [/New Zealand/gi, "Nový Zéland"],
+        [/Kiwis/gi, "Kiwis"],
+        [/All Blacks/gi, "All Blacks"],
+        [/Inline/gi, "In-line"],
+        [/Hockey/gi, "Hokej"],
+        [/Arena/gi, "Aréna"],
+        [/Ice/gi, "Ľad"],
+        [/Cup/gi, "Pohár"],
+        [/Challenges/gi, "Výzvy"],
+        [/Highlights/gi, "Zostrih"],
+        [/International/gi, "Medzinárodný"],
+        [/World Cup/gi, "Svetový pohár"],
+        [/League/gi, "Liga"],
+        [/Coach/gi, "Tréner"],
+        [/Player/gi, "Hráč"],
+        [/Masters/gi, "Masters"],
+        [/Olympic/gi, "Olympijská"],
+        [/Return/gi, "Návrat"],
+        [/Coming to/gi, "Prichádza do"],
+    ];
+
+    try {
+        const res = await fetch(url);
+        const data = await res.json();
+        box.innerHTML = "";
+
+        data.items.slice(0,5).forEach(item => {
+            /* TITLE TRANSLATION */
+            let title = item.title;
+            dict.forEach(([from,to]) => title = title.replace(from,to));
+
+            /* DESCRIPTION CLEAN + SHORTEN */
+            let desc = item.description
+                .replace(/<[^>]*>/g, "")   // remove HTML
+                .replace(/&nbsp;/g, " ")   // clean nbsp
+                .trim();
+            if (desc.length > 140) desc = desc.substring(0,140) + "...";
+
+            box.innerHTML += `
+                <div class="rss-item" style="padding:10px;background:#f7f7f7;border-left:4px solid #d90f23;margin-bottom:10px;border-radius:6px;">
+                    <a href="${item.link}" target="_blank" style="font-weight:bold;color:#244b94;text-decoration:none;">${title}</a>
+                    <div style="font-size:12px;color:#666;margin-top:4px;">${new Date(item.pubDate).toLocaleDateString("sk-SK")}</div>
+                    <p style="font-size:11px; line-height:1.15; color:#555; margin-top:4px;">${desc}</p>
+                </div>`;
+        });
+    } catch(e) {
+        err.style.display = "block";
+    }
+}
+loadRSS();
+</script>
+</body>
+</html>
+
+<!-- Below is the CSS file content you can move into styles.css -->
+
+<style>
+/* styles.css */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f5f5f5;
+    color: #222;
+}
+
+.header {
+    background: #ffffff;
+    color: #244b94;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 40px;
+    border-bottom: 2px solid #244b94;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+}
+
+.menu a {
+    color: #244b94;
+    margin-left: 26px;
+    text-decoration: none;
+    font-weight: bold;
+    padding-bottom: 3px;
+    border-bottom: 2px solid transparent;
+    transition: 0.25s ease;
+}
+
+.menu a:hover {
+    color: #d90f23;
+    border-bottom: 2px solid #d90f23;
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.hero {
+    padding: 60px 40px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.10);
+    text-align: center;
+}
+
+.footer {
+    text-align: center;
+    padding: 20px;
+    background: #244b94;
+    color: white;
+    margin-top: 40px;
+}
+.logo-img { height: 60px; width: auto; }
+.video-banner {
+    width: 100%;
+    height: 45vh;
+    max-height: 420px;
+    overflow: hidden;
+}
+
+.banner-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 0 18%;
+}
+.rss-sidebar {
+    max-width: 380px;
+    margin: 40px auto;
+}
+.rss-box {
+    background: #ffffff;
+    padding: 22px;
+    border-radius: 12px;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+    border-top: 4px solid #d90f23;
+    transition: transform 0.25s ease;
+}
+.rss-box h3 {
+    font-size: 22px;
+    font-weight: 800;
+    color: #d90f23;
+    margin-bottom: 10px;
+    letter-spacing: 0.3px;
+}
+.rss-source {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 15px;
+}
+.rss-error {
+    display: none;
+    padding: 10px;
+    margin-top: 10px;
+    background: #ffe5e5;
+    color: #b30000;
+    border: 1px solid #ff9999;
+    border-radius: 6px;
+    font-size: 13px;
+}
+.layout {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 40px;
+    padding: 40px 30px;
+}
+
+.main-content {
+    flex: 1;
+    max-width: 800px;
+}
+
+.rss-sidebar {
+    width: 320px;
+    margin: 0;
+}
+.site-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #244b94;
+    margin-left: 20px;
+    margin-right: 20px;
+    white-space: nowrap;
+}
+.footer {
+    background: #244b94;
+    color: white;
+    padding: 40px 30px;
+    margin-top: 40px;
+}
+.footer-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+    align-items: start;
+}
+.footer-title {
+    font-size: 20px;
+    font-weight: 800;
+    color: #d90f23;
+    margin-bottom: 10px;
+}
+.footer-text {
+    font-size: 14px;
+    line-height: 1.1;
+    margin-bottom: 4px;
+}
+.footer-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+}
+.footer-list li { margin: 0; padding: 0; line-height: 1; }
+.footer-list a {
+    color: #ffffff;
+    font-size: 14px;
+    text-decoration: none;
+    display: inline-block;
+}
+.footer-list a:hover {
+    color: #d90f23;
+}
+.footer-list a:hover {
+    color: #d90f23;
+}
+.footer-social a {
+    font-size: 26px;
+    margin-right: 12px;
+    color: white;
+}
+.footer-social a:hover {
+    color: #d90f23;
+}
+.icon-red {
+    color: #d90f23;
+    margin-right: 6px;
+}
+.footer-input {
+    width: 100%;
+    padding: 8px;
+    border-radius: 6px;
+    border: none;
+    margin-top: 5px;
+    margin-bottom: 10px;
+}
+.footer-btn {
+    width: 100%;
+    padding: 10px;
+    background: #d90f23;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+.footer-btn:hover {
+    background: #a80c1b;
+}
+.footer-bottom {
+    text-align: center;
+    margin-top: 30px;
+    font-size: 14px;
+    opacity: 0.9;
+}
+</style>

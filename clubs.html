@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Oficiálna stránka SAILH – Slovenská asociácia in-line hokeja. Novinky, kluby, galéria a podujatia." />
+    <meta name="author" content="SAILH" />
+    <title>SAILH</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+    <header class="header">
+        <div class="logo">
+            <picture>
+                <source srcset="https://alaviks.com/saihl/logo_80.webp 1x, https://alaviks.com/saihl/logo_160.webp 2x, https://alaviks.com/saihl/logo_200.webp 3x" type="image/webp">
+                <source srcset="https://alaviks.com/saihl/logo_80.png 1x, https://alaviks.com/saihl/logo_160.png 2x, https://alaviks.com/saihl/logo_200.png 3x" type="image/png">
+                <img src="https://alaviks.com/saihl/logo_80.png" alt="SAILH Logo" class="logo-img">
+            </picture>
+        </div>
+        <div class="site-title">Slovenská asociácia in-line hokeja</div>
+        <nav class="menu" role="navigation" aria-label="Hlavné menu">
+            <a href="index.html">Domov</a>
+            <a href="news.html">Novinky</a>
+            <a href="gallery.html">Galéria</a>
+            <a href="clubs.html">Kluby</a>
+            <a href="partners.html">Partnery</a>
+            <a href="donate.html">Darujte 2%</a>
+            <a href="https://www.inlineliga.sk">Amatérska liga</a>
+        </nav>
+    </header>
+<main class="content-box">
+    <h1>Kluby</h1>
+    <p>Zoznam registrovaných inline hokejových klubov na Slovensku.</p>
+
+    <!-- Responsive grid – 4 columns on PC, 1 column (one row) on mobile -->
+    <div style="display: grid; grid-template-columns: repeat(2, 2fr); gap: 30px 20px; justify-items: center; margin-top: 40px;">
+        
+        <!-- Wild Things -->
+        <div style="text-align: center; max-width: 220px;">
+            <a href="https://sailh.sk/wild_things_logo.jpg" target="_blank">
+                <img src="https://sailh.sk/wild_things_logo.jpg" alt="Wild Things" style="width: 100%; height: auto; max-height: 180px; object-fit: contain; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); transition: transform 0.2s;">
+            </a>
+            <p style="margin: 12px 0 0; font-weight: bold; font-size: 1.1rem; color: #222;">WILD THINGS</p>
+        </div>
+
+        <!-- Pressburg Kings -->
+        <div style="text-align: center; max-width: 220px;">
+            <a href="https://sailh.sk/pressburg_kings.jpg" target="_blank">
+                <img src="https://sailh.sk/pressburg_kings.jpg" alt="Pressburg Kings" style="width: 100%; height: auto; max-height: 180px; object-fit: contain; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); transition: transform 0.2s;">
+            </a>
+            <p style="margin: 12px 0 0; font-weight: bold; font-size: 1.1rem; color: #222;">PRESSBURG KINGS</p>
+        </div>
+
+        <!-- Viničné -->
+        <div style="text-align: center; max-width: 220px;">
+            <a href="https://sailh.sk/vinicne_logo.jpg" target="_blank">
+                <img src="https://sailh.sk/vinicne_logo.jpg" alt="Viničné" style="width: 100%; height: auto; max-height: 180px; object-fit: contain; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); transition: transform 0.2s;">
+            </a>
+            <p style="margin: 12px 0 0; font-weight: bold; font-size: 1.1rem; color: #222;">VINIČNÉ</p>
+        </div>
+
+        <!-- Team 300 -->
+        <div style="text-align: center; max-width: 220px;">
+            <a href="https://sailh.sk/team_300.jpg" target="_blank">
+                <img src="https://sailh.sk/team_300.jpg" alt="Team 300" style="width: 100%; height: auto; max-height: 180px; object-fit: contain; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); transition: transform 0.2s;">
+            </a>
+            <p style="margin: 12px 0 0; font-weight: bold; font-size: 1.1rem; color: #222;">TEAM 300</p>
+        </div>
+
+        <!-- BEE WARE -->
+        <div style="text-align: center; max-width: 220px;">
+            <a href="https://sailh.sk/beeware.jpg" target="_blank">
+                <img src="https://alaviks.com/saihl/beeware.jpeg" alt="BEE WARE" style="width: 100%; height: auto; max-height: 180px; object-fit: contain; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); transition: transform 0.2s;">
+            </a>
+            <p style="margin: 12px 0 0; font-weight: bold; font-size: 1.1rem; color: #222;">BEE WARE</p>
+        </div>
+
+        
+    </div>
+
+    <!-- Responsive behavior – no external CSS needed -->
+    <style>
+        @media (max-width: 992px) {
+            div[style*="grid-template-columns: repeat(4"] { 
+                grid-template-columns: repeat(2, 1fr); 
+            }
+        }
+        @media (max-width: 600px) {
+            div[style*="grid-template-columns: repeat(4"] { 
+                grid-template-columns: 1fr; 
+            }
+        }
+        a:hover img { 
+            transform: scale(1.06); 
+        }
+    </style>
+</main>
+<footer class="footer">
+    <div class="footer-grid">
+
+        <div>
+            <h4 class="footer-title">SAILH</h4>
+            <p class="footer-text">
+                Slovenská asociácia in-line hokeja.<br><br>
+                Oreganová 1178/1<br><br>
+                900 46 Most pri Bratislave - Studené<br><br>
+                Registračné číslo: VVS/1-900/90-72711<br>
+<br>
+        </div>
+
+        <div>
+            <h4 class="footer-title">Navigácia</h4>
+            <ul class="footer-list">
+                <li><a href="https://ives.minv.sk/rmno/detail/13542098669735168654">O asociácii</a></li>
+                <li><a href="clubs.html">Kluby</a></li>
+                <li><a href="https://www.inlineliga.sk/">Amatérska Liga</a></li>
+                <li><a href="partners.html">Partneri</a></li>
+                <li><a href="media.html">Médiá</a></li>
+                <li><a href="calendar.html">Kalendár</a></li>
+                <li><a href="privacy-policy.html">Ochrana údajov</a></li>
+            </ul>
+        </div>
+
+        <div>
+            <h4 class="footer-title">Kontakt</h4>
+            <p class="footer-text"><i class="fas fa-at icon-red"></i> pejchalr@gmail.com</p>
+            <p class="footer-text"><i class="fas fa-phone icon-red"></i> +421 905 627 715</p>
+            <p class="footer-text"><i class="fas fa-id-card icon-red"></i> IČO: 57133671</p>
+            <p class="footer-text"><i class="fas fa-file-alt icon-red"></i> DIČ: 2122632930</p>
+        </div>
+
+        <div>
+            <h4 class="footer-title">Newsletter</h4>
+            <p class="footer-text">Prihláste sa na odber noviniek:</p>
+            <input type="email" placeholder="Váš e-mail" class="footer-input">
+            <button class="footer-btn">Prihlásiť</button>
+        </div>
+
+    </div>
+
+    <div class="footer-bottom">© 2025 SAILH – Všetky práva vyhradené</div>
+</footer>
+</body>
+</html>

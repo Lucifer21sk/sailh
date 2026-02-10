@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Oficiálna stránka SAILH – Slovenská asociácia in-line hokeja. Novinky, kluby, galéria a podujatia." />
+    <meta name="author" content="SAILH" />
+    <title>SAILH</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+    <header class="header">
+        <div class="logo-and-title">
+            <div class="logo">
+                <picture>
+                    <source srcset="https://alaviks.com/saihl/logo_80.webp 1x, https://alaviks.com/saihl/logo_160.webp 2x, https://alaviks.com/saihl/logo_200.webp 3x" type="image/webp">
+                    <source srcset="https://alaviks.com/saihl/logo_80.png 1x, https://alaviks.com/saihl/logo_160.png 2x, https://alaviks.com/saihl/logo_200.png 3x" type="image/png">
+                    <img src="https://alaviks.com/saihl/logo_80.png" alt="SAILH Logo" class="logo-img">
+                </picture>
+            </div>
+            <div class="site-title">Slovenská asociácia in-line hokeja</div>
+        </div>
+        <nav class="menu" role="navigation" aria-label="Hlavné menu">
+            <a href="index.html" class="active">Domov</a>
+            <a href="news.html">Novinky</a>
+            <a href="gallery.html">Galéria</a>
+            <a href="clubs.html">Kluby</a>
+            <a href="partners.html">Partnery</a>
+            <a href="donate.html">Darujte 2%</a>
+            <a href="https://www.inlineliga.sk" target="_blank">Amatérska liga</a>
+        </nav>
+    </header>
+
+    <main class="content-box">
+        <h1>Vitajte na stránke SAILH</h1>
+        <p>Oficiálny riadiaci orgán pre inline hokej na Slovensku.</p>
+
+        <!-- Hlavné video - responzívne, nepretrčí -->
+        <section class="hero-video">
+            <div class="video-wrapper">
+                <iframe 
+                    src="https://www.youtube.com/embed/-wD2uEmyc4I?autoplay=0&mute=1&loop=1&playlist=-wD2uEmyc4I&controls=1&modestbranding=1" 
+                    title="SAILH – Inline hokej na Slovensku"
+                    allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen
+                    loading="lazy">
+                </iframe>
+            </div>
+            <div class="video-overlay">
+                <h2>Inline hokej v akcii</h2>
+                <p>Sledujte najlepšie momenty z majstrovstiev a extraligy</p>
+            </div>
+        </section>
+
+        <section>
+            <h2>Aktuality</h2>
+            <ul class="news-list">
+                <li><strong>15.11.2025:</strong> Prihláste sa na zimný turnaj v Bratislave!</li>
+                <li><strong>10.11.2025:</strong> Nový ročník amatérskej ligy štartuje v decembri.</li>
+                <li><strong>01.11.2025:</strong> Slovensko na ME U17 – pozrite si zostrih.</li>
+            </ul>
+            <p class="more-link"><a href="news.html">Všetky novinky →</a></p>
+        </section>
+
+        <section class="quick-links">
+            <h2>Rýchle odkazy</h2>
+            <div class="partners-grid">
+                <a href="clubs.html" class="partner-card">
+                    <img src="https://alaviks.com/saihl/icons/clubs.png" alt="Kluby">
+                    <h3>Kluby</h3>
+                </a>
+                <a href="gallery.html" class="partner-card">
+                    <img src="https://alaviks.com/saihl/icons/gallery.png" alt="Galéria">
+                    <h3>Galéria</h3>
+                </a>
+                <a href="https://www.inlineliga.sk" target="_blank" class="partner-card">
+                    <img src="https://alaviks.com/saihl/icons/liga.png" alt="Amatérska liga">
+                    <h3>Amatérska liga</h3>
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-grid">
+            <div>
+                <h4 class="footer-title">SAILH</h4>
+                <p class="footer-text">
+                    Slovenská asociácia in-line hokeja.<br>
+                    Oficiálny riadiaci orgán pre inline hokej v SR.
+                </p>
+            </div>
+            <div>
+                <h4 class="footer-title">Navigácia</h4>
+                <ul class="footer-list">
+                    <li><a href="about.html">O asociácii</a></li>
+                    <li><a href="clubs.html">Kluby</a></li>
+                    <li><a href="amaterska-liga.html">Amatérska Liga</a></li>
+                    <li><a href="partners.html">Partneri</a></li>
+                    <li><a href="media.html">Médiá</a></li>
+                    <li><a href="calendar.html">Kalendár</a></li>
+                    <li><a href="contact.html">Kontakt</a></li>
+                    <li><a href="privacy-policy.html">Ochrana údajov</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="footer-title">Kontakt</h4>
+                <p class="footer-text">pejchalr@gmail.com</p>
+                <p class="footer-text">+421 905 627 715</p>
+                <p class="footer-text">IČO: 57133671</p>
+                <p class="footer-text">DIČ: 2122632930</p>
+            </div>
+            <div>
+                <h4 class="footer-title">Newsletter</h4>
+                <p class="footer-text">Prihláste sa na odber noviniek:</p>
+                <input type="email" placeholder="Váš e-mail" class="footer-input">
+                <button class="footer-btn">Prihlásiť</button>
+            </div>
+        </div>
+        <div class="footer-bottom">© 2025 SAILH – Všetky práva vyhradené</div>
+    </footer>
+</body>
+</html>
