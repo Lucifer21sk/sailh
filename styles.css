@@ -101,7 +101,67 @@ body {
     box-shadow: 0 6px 16px rgba(0,0,0,0.12);
 }
 
+/* ===============================
+   LIVE SCOREBOARD WIDGET
+   =============================== */
+.live-scoreboard-section {
+    margin-top: 30px;
+    padding: 25px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
 
+.live-scoreboard-section h2 {
+    text-align: center;
+    color: #d90f23;
+    margin-bottom: 25px;
+}
+
+.match-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.match-card {
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    padding: 15px 20px;
+    border-left: 5px solid #244b94;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.status-live { background-color: #d90f23; color: white; animation: pulse 2s infinite; }
+.status-finished { background-color: #388e3c; color: white; }
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+.scoreboard-display {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.3rem;
+    color: #222;
+}
+
+.team-name { width: 40%; font-weight: bold; }
+.score-numbers { width: 20%; font-size: 2rem; font-weight: 900; color: #d90f23; }
+.match-phase { font-size: 0.9rem; color: #666; margin-top: 10px; font-weight: bold; }
 
 /* ===============================
    RSS PANEL
