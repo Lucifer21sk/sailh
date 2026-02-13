@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SAILH - Tabuľky</title>
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+        .stats-grid {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .stats-col {
+            flex: 1;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        /* History Window */
+        .history-window {
+            height: 300px;
+            overflow-y: auto;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .history-item:hover { background-color: #f0f4ff; }
+        .history-item:last-child { border-bottom: none; }
+        .h-date { font-size: 0.8em; color: #888; width: 80px; }
+        .h-match { font-weight: bold; flex-grow: 1; text-align: center; }
+        .h-score { font-weight: 900; color: #d90f23; font-size: 1.2em; width: 60px; text-align: right; }
+        
+        /* Phase abbreviation style */
+        .h-phase { 
+            font-size: 0.75em; 
+            color: #666; 
+            width: 60px; 
+            text-align: right; 
+            font-weight: bold;
+            cursor: help; /* Shows question mark cursor */
+        }
+
+        /* MODAL STYLES */
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 1000; 
+            left: 0;
+            top: 0;
+            width: 100%; 
+            height: 100%; 
+            background-color: rgba(0,0,0,0.6); 
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto; 
+            padding: 20px;
+            border: 1px solid #888;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 8px;
+            position: relative;
+        }
+        .close-btn {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close-btn:hover { color: black; }
+        
+        .goal-row {
+            border-bottom: 1px solid #eee;
+            padding: 8px 0;
+            display: flex;
+            align-items: center;
+        }
+        .goal-time { font-weight: bold; color: #d90f23; width: 50px; }
+        .goal-desc { font-size: 0.95em; }
+        .goal-assists { font-size: 0.85em; color: #666; }
+
+        /* Tables */
+        table { width: 100%; border-collapse: collapse; font-size: 0.9em; }
+        th { background: #244b94; color: white; text-align: center; padding: 8px; font-size: 0.85em; }
+        td { padding: 8px; border-bottom: 1px solid #eee; text-align: center; }
+        td:first-child { text-align: left; font-weight: bold; } 
+        td:last-child { font-weight: bold; color: #d90f23; background: #fff5f5; }
+
+        /* Tooltips for headers */
+        th[title] {
+            cursor: help;
+            text-decoration: underline dotted rgba(255,255,255,0.5);
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <div class="logo">
+            <img src="logo.png" alt="SAILH Logo" class="logo-img">
+        </div>
+        <div class="site-title">Slovenská asociácia in-line hokeja</div>
+        <nav class="menu">
+            <a href="index.html">Domov</a>
+            <a href="news.html">Novinky</a>
+            <a href="standings.html" class="active">Výsledky & Tabuľky</a>
+            <a href="gallery.html">Galéria</a>
+            <a href="clubs.html">Kluby</a>
+            <a href="partners.html">Partneri</a>
+            <a href="donate.html">Darujte 2%</a>
+        </nav>
+    </header>
+
+    <div class="layout" style="display:block;">
+        <main class="main-content" style="max-width: 1200px; margin: 0 auto;">
+            
+            <h1>Archív Zápasov</h1>
+            <p style="font-size:0.9em; color:#666; margin-bottom:10px;">Kliknutím na zápas zobrazíte detaily.</p>
+            
+            <div id="historyContainer" class="history-window">
+                <p style="text-align:center; padding:20px;">Načítavam históriu...</p>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stats-col">
+                    <h2 style="color:#244b94; border-bottom:2px solid #d90f23; padding-bottom:5px;">Kanadské Bodovanie</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Meno</th>
+                                <th title="Zápasy">Z</th>
+                                <th title="Góly">G</th>
+                                <th title="Asistencie">A</th>
+                                <th title="Body">B</th>
+                            </tr>
+                        </thead>
+                        <tbody id="playerTable"><tr><td colspan="5">Načítavam...</td></tr></tbody>
+                    </table>
+                </div>
+
+                <div class="stats-col">
+                    <h2 style="color:#244b94; border-bottom:2px solid #d90f23; padding-bottom:5px;">Tabuľka Tímov</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Tím</th>
+                                <th title="Zápasy">Z</th>
+                                <th title="Výhry (3 body)">V</th>
+                                <th title="Výhry po predĺžení/nájazdoch (2 body)">Vp</th>
+                                <th title="Prehry po predĺžení/nájazdoch (1 bod)">Pp</th>
+                                <th title="Prehry (0 bodov)">P</th>
+                                <th title="Celkový počet bodov">Body</th>
+                            </tr>
+                        </thead>
+                        <tbody id="teamTable"><tr><td colspan="7">Načítavam...</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <div id="detailsModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <h2 id="modalTitle" style="color:#244b94; margin-top:0;">Detaily Zápasu</h2>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-bottom">© 2026 SAILH</div>
+    </footer>
+
+    <script>
+        const API_BASE = "https://Lucifer21sk.pythonanywhere.com";
+
+        async function loadHistory() {
+            const res = await fetch(`${API_BASE}/matches/history`);
+            const data = await res.json();
+            const box = document.getElementById("historyContainer");
+            box.innerHTML = "";
+            
+            data.forEach(m => {
+                // LOGIC: Set abbreviation AND full Title for hover
+                let phaseAbbr = "";
+                let phaseTitle = "";
+                
+                if(m.phase === 'overtime') { 
+                    phaseAbbr = "PP"; 
+                    phaseTitle = "Predĺženie"; 
+                }
+                if(m.phase === 'shootout') { 
+                    phaseAbbr = "SN"; 
+                    phaseTitle = "Samostatné Nájazdy"; 
+                }
+                
+                box.innerHTML += `
+                    <div class="history-item" onclick="openDetails(${m.id}, '${m.home_team}', '${m.away_team}')">
+                        <div class="h-date">${m.date}</div>
+                        <div class="h-match">${m.home_team} vs ${m.away_team}</div>
+                        <div class="h-score">${m.home_score}:${m.away_score}</div>
+                        <div class="h-phase" title="${phaseTitle}">${phaseAbbr}</div>
+                    </div>
+                `;
+            });
+        }
+
+        async function openDetails(matchId, home, away) {
+            const modal = document.getElementById("detailsModal");
+            const title = document.getElementById("modalTitle");
+            const body = document.getElementById("modalBody");
+            
+            modal.style.display = "block";
+            title.innerText = `${home} vs ${away}`;
+            body.innerHTML = "<p>Načítavam góly...</p>";
+
+            try {
+                const res = await fetch(`${API_BASE}/matches/${matchId}/details`);
+                const events = await res.json();
+                
+                if (events.length === 0) {
+                    body.innerHTML = "<p>Žiadne góly v tomto zápase.</p>";
+                    return;
+                }
+
+                body.innerHTML = ""; 
+                events.forEach(e => {
+                    let assists = "";
+                    if (e.a1) {
+                        assists = `(A: ${e.a1}`;
+                        if (e.a2) assists += `, ${e.a2}`;
+                        assists += ")";
+                    }
+
+                    body.innerHTML += `
+                        <div class="goal-row">
+                            <div class="goal-time" style="width: 60px; text-align:center;">${e.score}</div>
+                            <div>
+                                <div class="goal-desc">
+                                    <strong>${e.team}</strong><br>
+                                    ${e.scorer} <span class="goal-assists">${assists}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            } catch (err) {
+                body.innerHTML = "<p>Chyba pri načítaní dát.</p>";
+            }
+        }
+
+        function closeModal() {
+            document.getElementById("detailsModal").style.display = "none";
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById("detailsModal");
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        async function loadPlayers() {
+            const res = await fetch(`${API_BASE}/stats/players`);
+            const data = await res.json();
+            const tbody = document.getElementById("playerTable");
+            tbody.innerHTML = "";
+            data.slice(0, 15).forEach(p => { 
+                tbody.innerHTML += `<tr><td>${p.name}</td><td>${p.gp}</td><td>${p.g}</td><td>${p.a}</td><td>${p.pts}</td></tr>`;
+            });
+        }
+
+        async function loadTeams() {
+            const res = await fetch(`${API_BASE}/stats/teams`);
+            const data = await res.json();
+            const tbody = document.getElementById("teamTable");
+            tbody.innerHTML = "";
+            data.forEach(t => {
+                tbody.innerHTML += `<tr><td>${t.name}</td><td>${t.gp}</td><td>${t.w}</td><td>${t.ow}</td><td>${t.ol}</td><td>${t.l}</td><td>${t.pts}</td></tr>`;
+            });
+        }
+
+        loadHistory();
+        loadPlayers();
+        loadTeams();
+    </script>
+</body>
+</html>

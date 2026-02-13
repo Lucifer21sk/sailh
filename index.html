@@ -22,10 +22,12 @@
             <a href="index.html" class="active">Domov</a>
             <a href="news.html">Novinky</a>
             <a href="gallery.html">Galéria</a>
+            <a href="standing.html">Extra liga</a>
             <a href="clubs.html">Kluby</a>
             <a href="partners.html">Partneri</a>
             <a href="donate.html">Darujte 2%</a>
             <a href="https://www.inlineliga.sk">Amatérska liga</a>
+            
         </nav>
     </header>
 
@@ -41,7 +43,7 @@
         <main class="hero main-content" style="max-width: 800px; width: 100%;">
             
             <div class="live-scoreboard-section">
-                <h2>Live Výsledky</h2>
+                <h2>Naživo Zápasy</h2>
                 <div id="matchList" class="match-container">
                     <p>Načítavam zápasy...</p>
                 </div>
@@ -90,13 +92,12 @@
         <div class="footer-bottom">© 2026 SAILH - Všetky práva vyhradené</div>
     </footer>
 
-    <script>
+<script>
         async function loadMatches() {
             try {
                 const response = await fetch("https://Lucifer21sk.pythonanywhere.com/matches/public");
                 let matches = await response.json();
 
-                // 🚨 THE FIX: Keep ONLY matches that are currently 'live' 🚨
                 matches = matches.filter(m => m.status === "live");
 
                 const container = document.getElementById("matchList");
@@ -113,7 +114,39 @@
                     
                     let phaseText = m.phase;
                     if(phaseText === "normal") phaseText = "Základná hracia doba";
+                    if(phaseText === "overtime") phaseText = "Predĺženie";
                     if(phaseText === "shootout") phaseText = "Nájazdy";
+
+                    // --- TIMELINE (Names Only) ---
+                    let eventsHtml = "";
+                    if (m.events && m.events.length > 0) {
+                        eventsHtml = '<div style="margin-top: 20px; border-top: 1px solid #ddd; padding-top: 10px; display: flex; flex-direction: column; gap: 8px;">';
+                        
+                        m.events.forEach(e => {
+                            let alignStyle = "";
+                            let boxStyle = "padding: 6px 12px; border-radius: 6px; font-weight: bold; font-size: 0.95em; display: inline-block; max-width: 80%; box-shadow: 0 1px 2px rgba(0,0,0,0.1);";
+
+                            if (e.side === "home") {
+                                // Home Goal -> Left -> Blue
+                                alignStyle = "align-self: flex-start; text-align: left;";
+                                boxStyle += " background-color: #e3f2fd; color: #1565c0; border-left: 4px solid #1565c0;"; 
+                            } else {
+                                // Away Goal -> Right -> Red
+                                alignStyle = "align-self: flex-end; text-align: right;";
+                                boxStyle += " background-color: #fce4ec; color: #c2185b; border-right: 4px solid #c2185b;"; 
+                            }
+
+                            // Just the Scorer Name
+                            eventsHtml += `
+                                <div style="${alignStyle}">
+                                    <div style="${boxStyle}">
+                                        ${e.scorer}
+                                    </div>
+                                </div>`;
+                        });
+                        eventsHtml += '</div>';
+                    }
+                    // -----------------------------
 
                     container.innerHTML += `
                         <div class="match-card">
@@ -124,6 +157,7 @@
                                 <div class="team-name" style="text-align: left;">${m.away_team}</div>
                             </div>
                             <div class="match-phase">${phaseText}</div>
+                            ${eventsHtml}
                         </div>
                     `;
                 });
