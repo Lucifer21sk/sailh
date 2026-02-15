@@ -20,79 +20,135 @@
         <div class="site-title">Slovenská asociácia in-line hokeja</div>
         <nav class="menu" role="navigation" aria-label="Hlavné menu">
             <a href="index.html" class="active">Domov</a>
-            <a href="news.html">Novinky</a>
-            <a href="gallery.html">Galéria</a>
-            <a href="standing.html">Extra liga</a>
-            <a href="clubs.html">Kluby</a>
-            <a href="partners.html">Partneri</a>
-            <a href="donate.html">Darujte 2%</a>
+            <a href="standing.html">Extraliga</a>
             <a href="https://www.inlineliga.sk">Amatérska liga</a>
-            
+            <a href="clubs.html">Kluby</a>
+            <a href="news.html">MIHWA</a>
+            <a href="gallery.html">Galéria</a>            
+            <a href="partners.html">Partneri</a>              
         </nav>
     </header>
 
     <div class="video-banner">
         <video autoplay muted loop playsinline class="banner-video">
-            <source src="banner.webm" type="video/webm" />
             <source src="banner.mp4" type="video/mp4" />
-            Váš prehliadač nepodporuje prehrávanie videa.
         </video>
     </div>
 
-    <div class="layout" style="justify-content: center;">
-        <main class="hero main-content" style="max-width: 800px; width: 100%;">
+<div class="dashboard-grid">
+        
+        <aside class="dashboard-left">
+            <h3 style="color:#244b94; border-bottom:2px solid #d90f23; padding-bottom:10px; margin-top:0;">📅 Kalendár</h3>
             
-            <div class="live-scoreboard-section">
-                <h2>Naživo Zápasy</h2>
+            <div id="calendarList" class="upcoming-list">
+                <p>Načítavam...</p>
+            </div>
+        </aside>
+
+        <main class="dashboard-center">
+            <div class="live-scoreboard-section" style="margin-top:0; padding:0; background:transparent; box-shadow:none;">
+                <h2 style="text-align:center; color:#d90f23; margin-top:0;">Live Výsledky</h2>
                 <div id="matchList" class="match-container">
-                    <p>Načítavam zápasy...</p>
+                    <p style="text-align:center;">Načítavam zápasy...</p>
                 </div>
             </div>
-
         </main>
+
+        <aside class="dashboard-right">
+            <a href="standings.html" class="action-btn btn-results">
+                📊 Výsledky & Tabuľky
+            </a>
+            <a href="https://www.youtube.com/@HOCKEYTV-LIVE/live" target="_blank" class="action-btn btn-live">
+                ▶ Sledovať Livestream
+            </a>
+        </aside>
+
     </div>
 
-    <footer class="footer">
-        <div class="footer-grid">
-            <div>
+<footer class="footer">
+        <div class="footer-container">      
+            <div class="footer-col">
                 <h4 class="footer-title">SAILH</h4>
+                <div class="footer-line"></div>
                 <p class="footer-text">
-                    Slovenská asociácia in-line hokeja.<br><br>
+                    Slovenská asociácia in-line hokeja.<br>
                     Oreganová 1178/1<br>
-                    900 46 Most pri Bratislave - Studené<br><br>
+                    900 46 Most pri Bratislave<br>
+                    Studené
+                </p>
+                <p class="footer-text" style="margin-top: 15px; font-size: 0.85em; opacity: 0.7;">
                     Registračné číslo: VVS/1-900/90-72711
                 </p>
             </div>
-            <div>
-                <h4 class="footer-title">Navigácia</h4>
-                <ul class="footer-list">
+            <div class="footer-col">
+                <h4 class="footer-title">Rýchle Odkazy</h4>
+                <div class="footer-line"></div>
+                <ul class="footer-links">
                     <li><a href="https://ives.minv.sk/rmno/detail/13542098669735168654">O asociácii</a></li>
-                    <li><a href="clubs.html">Kluby</a></li>
-                    <li><a href="https://www.inlineliga.sk/">Amatérska Liga</a></li>
-                    <li><a href="partners.html">Partneri</a></li>
-                    <li><a href="media.html">Médiá</a></li>
-                    <li><a href="calendar.html">Kalendár</a></li>
                     <li><a href="privacy-policy.html">Ochrana údajov</a></li>
+                    <li><a href="donate.html">Darujte 2%</a></li>
                 </ul>
             </div>
-            <div>
+            <div class="footer-col">
                 <h4 class="footer-title">Kontakt</h4>
-                <p class="footer-text"><i class="fas fa-at icon-red"></i> pejchalr@gmail.com</p>
-                <p class="footer-text"><i class="fas fa-phone icon-red"></i> +421 905 627 715</p>
-                <p class="footer-text"><i class="fas fa-id-card icon-red"></i> IČO: 57133671</p>
-                <p class="footer-text"><i class="fas fa-file-alt icon-red"></i> DIČ: 2122632930</p>
-            </div>
-            <div>
-                <h4 class="footer-title">Newsletter</h4>
-                <p class="footer-text">Prihláste sa na odber noviniek:</p>
-                <input type="email" placeholder="Váš e-mail" class="footer-input">
-                <button class="footer-btn">Prihlásiť</button>
+                <div class="footer-line"></div>
+                <div class="contact-item">
+                    <span class="icon">📧</span> 
+                    <a href="mailto:pejchalr@gmail.com">pejchalr@gmail.com</a>
+                </div>
+                <div class="contact-item">
+                    <span class="icon">📞</span> 
+                    <span>+421 905 627 715</span>
+                </div>
+                <div class="contact-item" style="margin-top: 20px;">
+                    <strong style="color:#d90f23; margin-right:5px;">IČO:</strong> 57133671
+                </div>
+                <div class="contact-item">
+                    <strong style="color:#d90f23; margin-right:5px;">DIČ:</strong> 2122632930
+                </div>
             </div>
         </div>
-        <div class="footer-bottom">© 2026 SAILH - Všetky práva vyhradené</div>
+        <div class="footer-bottom">
+            © 2026 SAILH - Všetky práva vyhradené
+        </div>
     </footer>
 
 <script>
+    const API_BASE = "https://Lucifer21sk.pythonanywhere.com";
+async function loadCalendar() {
+            try {
+                const res = await fetch(`${API_BASE}/matches/upcoming`);
+                const matches = await res.json();
+                const box = document.getElementById("calendarList");
+                
+                if (matches.length === 0) {
+                    box.innerHTML = "<p style='color:#666; font-size:0.9em; padding:10px;'>Žiadne naplánované zápasy.</p>";
+                    return;
+                }
+
+                box.innerHTML = "";
+                matches.forEach(m => {
+                    // Injecting the new "Date Box" layout
+                    box.innerHTML += `
+                        <div class="upcoming-item">
+                            
+                            <div class="calendar-date-box">
+                                <span class="c-date">${m.date}</span>
+                                <span class="c-time">${m.time}</span>
+                            </div>
+
+                            <div class="calendar-teams">
+                                <div>${m.home_team}</div>
+                                <span class="vs-divider">vs</span>
+                                <div>${m.away_team}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+            } catch(e) {
+                console.error(e);
+            }
+        }
         async function loadMatches() {
             try {
                 const response = await fetch("https://Lucifer21sk.pythonanywhere.com/matches/public");
@@ -168,6 +224,7 @@
             }
         }
 
+        loadCalendar();
         loadMatches();
         setInterval(loadMatches, 5000); 
     </script>

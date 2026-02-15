@@ -101,6 +101,145 @@ body {
     box-shadow: 0 6px 16px rgba(0,0,0,0.12);
 }
 
+/* =========================================
+   DASHBOARD LAYOUT (3 Columns)
+   ========================================= */
+.dashboard-grid {
+    display: grid;
+    /* 1fr = 1 fraction of space. 
+       This creates: Left(1 part) - Center(2 parts) - Right(1 part) */
+    grid-template-columns: 1fr 2fr 1fr; 
+    gap: 30px;
+    max-width: 1400px;
+    margin: 40px auto;
+    padding: 0 20px;
+    align-items: start; /* Align items to the top */
+}
+
+/* 1. Left Sidebar (Calendar) */
+.dashboard-left {
+    background: #ffffff;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+/* 2. Center (Live Scoreboard) */
+.dashboard-center {
+    /* No background here, the cards inside have backgrounds */
+}
+
+/* 3. Right Sidebar (Buttons) */
+.dashboard-right {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Action Buttons Styles */
+.action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 20px;
+    font-size: 1.1em;
+    font-weight: bold;
+    text-decoration: none;
+    color: white;
+    border-radius: 8px;
+    transition: transform 0.2s, box-shadow 0.2s;
+    text-transform: uppercase;
+}
+
+.action-btn:hover {
+    transform: translateY(-3px);
+    opacity: 0.95;
+}
+
+.btn-results {
+    background-color: #244b94; /* Blue */
+    box-shadow: 0 4px 0 #15326b;
+}
+
+.btn-live {
+    background-color: #ff0000; /* Red */
+    box-shadow: 0 4px 0 #cc0000;
+}
+
+/* Responsive: On tablets/phones, stack everything */
+@media (max-width: 1000px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr; /* 1 Column only */
+    }
+    /* Order: Live Scores first, then Buttons, then Calendar */
+    .dashboard-center { order: 1; }
+    .dashboard-right  { order: 2; }
+    .dashboard-left   { order: 3; }
+}
+
+/* Better Calendar Item Styles */
+.upcoming-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 10px;
+    border-bottom: 1px solid #eee;
+    background: #fff;
+    transition: background 0.2s;
+    border-radius: 8px; /* Slight rounding */
+    margin-bottom: 5px;
+}
+
+.upcoming-item:hover {
+    background-color: #f8f9fa; /* Highlight on hover */
+}
+
+/* The Grey Box on the Left */
+.calendar-date-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 60px;          /* Fixed width */
+    min-width: 60px;      /* Prevent shrinking */
+    background: #f1f3f5;  /* Light Grey background */
+    padding: 8px 5px;
+    border-radius: 8px;
+    margin-right: 15px;
+    text-align: center;
+    border: 1px solid #e9ecef;
+}
+
+.c-date {
+    font-weight: 900;
+    color: #d90f23; /* SAILH Red */
+    font-size: 1.1em;
+    line-height: 1;
+    margin-bottom: 4px;
+}
+
+.c-time {
+    font-size: 0.85em;
+    color: #495057;
+    font-weight: bold;
+}
+
+/* The Teams on the Right */
+.calendar-teams {
+    font-size: 0.95em;
+    color: #212529;
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+.vs-divider {
+    color: #adb5bd;
+    font-size: 0.8em;
+    font-weight: normal;
+    margin: 2px 0;
+    display: block;
+}
+
 /* ===============================
    LIVE SCOREBOARD WIDGET
    =============================== */
@@ -396,4 +535,126 @@ body {
  background:white;
  padding:10px;
  border-radius:10px;
+}
+
+/* =========================
+   NEW PROFESSIONAL FOOTER
+   ========================= */
+.footer {
+    background-color: #1a3a7a; /* Professional Dark Blue */
+    color: white;
+    padding-top: 60px;
+    margin-top: 60px;
+    font-size: 0.95rem;
+    border-top: 4px solid #d90f23; /* Red accent line at top */
+}
+
+.footer-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 Equal Columns */
+    gap: 50px;
+    padding: 0 20px 50px 20px;
+}
+
+/* Titles & Red Underline */
+.footer-title {
+    color: #ffffff;
+    font-size: 1.3rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    margin: 0 0 10px 0;
+    letter-spacing: 0.5px;
+}
+
+.footer-line {
+    width: 50px;
+    height: 3px;
+    background-color: #d90f23; /* SAILH Red */
+    margin-bottom: 25px;
+}
+
+/* Text & Columns */
+.footer-col {
+    display: flex;
+    flex-direction: column;
+}
+
+.footer-text {
+    line-height: 1.6;
+    color: #dbe4f0; /* Soft blue-white text */
+    margin: 0;
+}
+
+/* Links */
+.footer-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.footer-links li {
+    margin-bottom: 12px;
+}
+
+.footer-links a {
+    color: #dbe4f0;
+    text-decoration: none;
+    transition: all 0.2s;
+    font-weight: 500;
+}
+
+.footer-links a:hover {
+    color: #ffffff;
+    padding-left: 8px; /* Slide effect on hover */
+    border-left: 3px solid #d90f23;
+    padding-left: 8px;
+}
+
+/* Contact Info */
+.contact-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    color: #dbe4f0;
+}
+
+.contact-item a {
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.contact-item .icon {
+    font-size: 1.2em;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+}
+
+/* Bottom Bar */
+.footer-bottom {
+    background-color: #112652; /* Darker Blue */
+    text-align: center;
+    padding: 25px;
+    font-size: 0.9rem;
+    color: #889bbd;
+    border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .footer-container {
+        grid-template-columns: 1fr; /* Stack vertically on phones */
+        text-align: center;
+        gap: 40px;
+    }
+    
+    .footer-line {
+        margin: 0 auto 25px auto; /* Center the red line */
+    }
+
+    .contact-item {
+        justify-content: center;
+    }
 }

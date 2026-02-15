@@ -3,12 +3,114 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Oficiálna stránka SAILH – Slovenská asociácia in-line hokeja. Novinky, kluby, galéria a podujatia." />
-    <meta name="author" content="SAILH" />
-    <title>SAILH</title>
+    <title>SAILH - Kluby</title>
     <link rel="stylesheet" href="styles.css" />
+    <style>
+        /* GRID LAYOUT FOR CLUBS */
+        .clubs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .club-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border-bottom: 4px solid #244b94; /* Blue accent */
+        }
+
+        .club-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.15);
+        }
+
+        .club-logo-placeholder {
+            width: 80px;
+            height: 80px;
+            background: #f0f4ff;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            color: #244b94;
+        }
+
+        .club-name {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+            margin: 0;
+        }
+
+        /* MODAL (ROSTER POPUP) */
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 1000; 
+            left: 0;
+            top: 0;
+            width: 100%; 
+            height: 100%; 
+            background-color: rgba(0,0,0,0.6); 
+            backdrop-filter: blur(3px);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto; 
+            padding: 25px;
+            border: 1px solid #888;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 12px;
+            position: relative;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .close-btn {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .close-btn:hover { color: #d90f23; }
+
+        /* Roster Table */
+        .roster-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .roster-table th {
+            background: #244b94;
+            color: white;
+            padding: 10px;
+            text-align: left;
+            font-size: 0.9em;
+        }
+        .roster-table td {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            color: #333;
+        }
+        .roster-table tr:last-child td { border-bottom: none; }
+        .num-col { width: 50px; text-align: center; font-weight: bold; color: #d90f23; }
+    </style>
 </head>
 <body>
+
     <header class="header">
         <div class="logo">
             <picture>
@@ -20,125 +122,181 @@
         <div class="site-title">Slovenská asociácia in-line hokeja</div>
         <nav class="menu" role="navigation" aria-label="Hlavné menu">
             <a href="index.html">Domov</a>
-            <a href="news.html">Novinky</a>
-            <a href="gallery.html">Galéria</a>
-            <a href="clubs.html">Kluby</a>
-            <a href="partners.html">Partnery</a>
-            <a href="donate.html">Darujte 2%</a>
+            <a href="standing.html">Extraliga</a>
             <a href="https://www.inlineliga.sk">Amatérska liga</a>
+            <a href="clubs.html" class="active">Kluby</a>
+            <a href="news.html">MIHWA</a>
+            <a href="gallery.html">Galéria</a>            
+            <a href="partners.html">Partneri</a>              
         </nav>
     </header>
-<main class="content-box">
-    <h1>Kluby</h1>
-    <p>Zoznam registrovaných inline hokejových klubov na Slovensku.</p>
 
-    <!-- Responsive grid – 4 columns on PC, 1 column (one row) on mobile -->
-    <div style="display: grid; grid-template-columns: repeat(2, 2fr); gap: 30px 20px; justify-items: center; margin-top: 40px;">
-        
-        <!-- Wild Things -->
-        <div style="text-align: center; max-width: 220px;">
-            <a href="https://sailh.sk/wild_things_logo.jpg" target="_blank">
-                <img src="https://sailh.sk/wild_things_logo.jpg" alt="Wild Things" style="width: 100%; height: auto; max-height: 180px; object-fit: contain; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); transition: transform 0.2s;">
-            </a>
-            <p style="margin: 12px 0 0; font-weight: bold; font-size: 1.1rem; color: #222;">WILD THINGS</p>
-        </div>
+    <div class="layout" style="display:block;">
+        <main class="main-content" style="max-width: 1200px; margin: 0 auto; min-height: 500px;">
+            
+            <h1 style="text-align:center; color:#244b94; margin-top:40px;">Kluby Extraligy</h1>
+            <p style="text-align:center; color:#666;">Kliknutím na klub zobrazíte súpisku hráčov.</p>
 
-        <!-- Pressburg Kings -->
-        <div style="text-align: center; max-width: 220px;">
-            <a href="https://sailh.sk/pressburg_kings.jpg" target="_blank">
-                <img src="https://sailh.sk/pressburg_kings.jpg" alt="Pressburg Kings" style="width: 100%; height: auto; max-height: 180px; object-fit: contain; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); transition: transform 0.2s;">
-            </a>
-            <p style="margin: 12px 0 0; font-weight: bold; font-size: 1.1rem; color: #222;">PRESSBURG KINGS</p>
-        </div>
+            <div id="clubsContainer" class="clubs-grid">
+                <p style="text-align:center; width:100%;">Načítavam kluby...</p>
+            </div>
 
-        <!-- Viničné -->
-        <div style="text-align: center; max-width: 220px;">
-            <a href="https://sailh.sk/vinicne_logo.jpg" target="_blank">
-                <img src="https://sailh.sk/vinicne_logo.jpg" alt="Viničné" style="width: 100%; height: auto; max-height: 180px; object-fit: contain; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); transition: transform 0.2s;">
-            </a>
-            <p style="margin: 12px 0 0; font-weight: bold; font-size: 1.1rem; color: #222;">VINIČNÉ</p>
-        </div>
-
-        <!-- Team 300 -->
-        <div style="text-align: center; max-width: 220px;">
-            <a href="https://sailh.sk/team_300.jpg" target="_blank">
-                <img src="https://sailh.sk/team_300.jpg" alt="Team 300" style="width: 100%; height: auto; max-height: 180px; object-fit: contain; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); transition: transform 0.2s;">
-            </a>
-            <p style="margin: 12px 0 0; font-weight: bold; font-size: 1.1rem; color: #222;">TEAM 300</p>
-        </div>
-
-        <!-- BEE WARE -->
-        <div style="text-align: center; max-width: 220px;">
-            <a href="https://sailh.sk/beeware.jpeg" target="_blank">
-                <img src="beeware.jpeg" alt="BEE WARE" style="width: 100%; height: auto; max-height: 180px; object-fit: contain; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); transition: transform 0.2s;">
-            </a>
-            <p style="margin: 12px 0 0; font-weight: bold; font-size: 1.1rem; color: #222;">BEE WARE</p>
-        </div>
-
-        
+        </main>
     </div>
 
-    <!-- Responsive behavior – no external CSS needed -->
-    <style>
-        @media (max-width: 992px) {
-            div[style*="grid-template-columns: repeat(4"] { 
-                grid-template-columns: repeat(2, 1fr); 
-            }
-        }
-        @media (max-width: 600px) {
-            div[style*="grid-template-columns: repeat(4"] { 
-                grid-template-columns: 1fr; 
-            }
-        }
-        a:hover img { 
-            transform: scale(1.06); 
-        }
-    </style>
-</main>
+    <div id="rosterModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <h2 id="modalTitle" style="color:#244b94; margin-top:0; border-bottom:2px solid #d90f23; padding-bottom:10px;">Súpiska</h2>
+            
+            <div id="modalBody" style="max-height: 400px; overflow-y: auto;">
+                </div>
+        </div>
+    </div>
+
 <footer class="footer">
-    <div class="footer-grid">
-
-        <div>
-            <h4 class="footer-title">SAILH</h4>
-            <p class="footer-text">
-                Slovenská asociácia in-line hokeja.<br><br>
-                Oreganová 1178/1<br><br>
-                900 46 Most pri Bratislave - Studené<br><br>
-                Registračné číslo: VVS/1-900/90-72711<br>
-<br>
+        <div class="footer-container">      
+            <div class="footer-col">
+                <h4 class="footer-title">SAILH</h4>
+                <div class="footer-line"></div>
+                <p class="footer-text">
+                    Slovenská asociácia in-line hokeja.<br>
+                    Oreganová 1178/1<br>
+                    900 46 Most pri Bratislave<br>
+                    Studené
+                </p>
+                <p class="footer-text" style="margin-top: 15px; font-size: 0.85em; opacity: 0.7;">
+                    Registračné číslo: VVS/1-900/90-72711
+                </p>
+            </div>
+            <div class="footer-col">
+                <h4 class="footer-title">Rýchle Odkazy</h4>
+                <div class="footer-line"></div>
+                <ul class="footer-links">
+                    <li><a href="https://ives.minv.sk/rmno/detail/13542098669735168654">O asociácii</a></li>
+                    <li><a href="privacy-policy.html">Ochrana údajov</a></li>
+                    <li><a href="donate.html">Darujte 2%</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4 class="footer-title">Kontakt</h4>
+                <div class="footer-line"></div>
+                <div class="contact-item">
+                    <span class="icon">📧</span> 
+                    <a href="mailto:pejchalr@gmail.com">pejchalr@gmail.com</a>
+                </div>
+                <div class="contact-item">
+                    <span class="icon">📞</span> 
+                    <span>+421 905 627 715</span>
+                </div>
+                <div class="contact-item" style="margin-top: 20px;">
+                    <strong style="color:#d90f23; margin-right:5px;">IČO:</strong> 57133671
+                </div>
+                <div class="contact-item">
+                    <strong style="color:#d90f23; margin-right:5px;">DIČ:</strong> 2122632930
+                </div>
+            </div>
         </div>
-
-        <div>
-            <h4 class="footer-title">Navigácia</h4>
-            <ul class="footer-list">
-                <li><a href="https://ives.minv.sk/rmno/detail/13542098669735168654">O asociácii</a></li>
-                <li><a href="clubs.html">Kluby</a></li>
-                <li><a href="https://www.inlineliga.sk/">Amatérska Liga</a></li>
-                <li><a href="partners.html">Partneri</a></li>
-                <li><a href="media.html">Médiá</a></li>
-                <li><a href="calendar.html">Kalendár</a></li>
-                <li><a href="privacy-policy.html">Ochrana údajov</a></li>
-            </ul>
+        <div class="footer-bottom">
+            © 2026 SAILH - Všetky práva vyhradené
         </div>
+    </footer>
 
-        <div>
-            <h4 class="footer-title">Kontakt</h4>
-            <p class="footer-text"><i class="fas fa-at icon-red"></i> pejchalr@gmail.com</p>
-            <p class="footer-text"><i class="fas fa-phone icon-red"></i> +421 905 627 715</p>
-            <p class="footer-text"><i class="fas fa-id-card icon-red"></i> IČO: 57133671</p>
-            <p class="footer-text"><i class="fas fa-file-alt icon-red"></i> DIČ: 2122632930</p>
-        </div>
+    <script>
+        const API_BASE = "https://Lucifer21sk.pythonanywhere.com";
 
-        <div>
-            <h4 class="footer-title">Newsletter</h4>
-            <p class="footer-text">Prihláste sa na odber noviniek:</p>
-            <input type="email" placeholder="Váš e-mail" class="footer-input">
-            <button class="footer-btn">Prihlásiť</button>
-        </div>
+        // 1. Load All Teams
+        async function loadClubs() {
+            try {
+                const res = await fetch(`${API_BASE}/teams`);
+                const teams = await res.json();
+                const container = document.getElementById("clubsContainer");
+                
+                container.innerHTML = "";
+                teams.forEach(t => {
+                    // Check if logo exists, otherwise use a default image
+                    const logoSrc = t.logo ? t.logo : 'logo_80.png'; 
+                    
+                    container.innerHTML += `
+                        <div class="club-card" onclick="openRoster(${t.id}, '${t.name}')">
+                            <div class="club-logo-placeholder" style="background: transparent;">
+                                <img src="${logoSrc}" alt="${t.name}" style="width: 100%; height: 100%; object-fit: contain;">
+                            </div>
+                            <h3 class="club-name">${t.name}</h3>
+                        </div>
+                    `;
+                });
+            } catch (err) {
+                console.error(err);
+                document.getElementById("clubsContainer").innerHTML = "<p>Chyba pri načítaní klubov.</p>";
+            }
+        }
 
-    </div>
+        // 2. Open Roster Modal
+        async function openRoster(teamId, teamName) {
+            const modal = document.getElementById("rosterModal");
+            const title = document.getElementById("modalTitle");
+            const body = document.getElementById("modalBody");
 
-    <div class="footer-bottom">© 2025 SAILH - Všetky práva vyhradené</div>
-</footer>
+            modal.style.display = "block";
+            title.innerText = `Súpiska: ${teamName}`;
+            body.innerHTML = "<p>Načítavam hráčov...</p>";
+
+            try {
+                // Fetch players for this team
+                const res = await fetch(`${API_BASE}/players/${teamId}`);
+                const players = await res.json();
+
+                if (players.length === 0) {
+                    body.innerHTML = "<p>Žiadni hráči na súpiske.</p>";
+                    return;
+                }
+
+                // Build the table
+                let tableHtml = `
+                    <table class="roster-table">
+                        <thead>
+                            <tr>
+                                <th class="num-col">#</th>
+                                <th>Meno Hráča</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                players.forEach(p => {
+                    tableHtml += `
+                        <tr>
+                            <td class="num-col">${p.number}</td>
+                            <td>${p.name}</td>
+                        </tr>
+                    `;
+                });
+
+                tableHtml += `</tbody></table>`;
+                body.innerHTML = tableHtml;
+
+            } catch (err) {
+                console.error(err);
+                body.innerHTML = "<p>Chyba pri načítaní súpisky.</p>";
+            }
+        }
+
+        // 3. Close Modal
+        function closeModal() {
+            document.getElementById("rosterModal").style.display = "none";
+        }
+
+        // Close if clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById("rosterModal");
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        // Initialize
+        loadClubs();
+    </script>
 </body>
 </html>

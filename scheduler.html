@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plánovač Zápasov</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #f4f4f4; text-align: center; }
+        .container { max-width: 500px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        h2 { color: #244b94; margin-top: 0; }
+        label { display: block; margin: 15px 0 5px; font-weight: bold; text-align: left; }
+        select, input { width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc; font-size: 16px; box-sizing: border-box; }
+        
+        button { margin-top: 25px; width: 100%; padding: 12px; background: #244b94; color: white; border: none; border-radius: 5px; font-size: 18px; font-weight: bold; cursor: pointer; }
+        button:hover { background: #1a3a7a; }
+        
+        .success { color: green; margin-top: 15px; display: none; }
+
+        /* LIST STYLES */
+        .match-list { margin-top: 40px; text-align: left; border-top: 2px solid #eee; padding-top: 20px; }
+        .match-item { 
+            background: #fff; 
+            border: 1px solid #ddd; 
+            padding: 10px; 
+            border-radius: 6px; 
+            margin-bottom: 10px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+        }
+        .match-info { font-size: 0.9em; }
+        .match-date { font-weight: bold; color: #d90f23; }
+        
+        .delete-btn {
+            background: #d90f23;
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8em;
+            margin-top: 0; /* Reset margin */
+            width: auto;   /* Reset width */
+        }
+        .delete-btn:hover { background: #b00b1b; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>📅 Naplánovať Zápas</h2>
+        
+        <label>Domáci Tím:</label>
+        <select id="homeTeam"></select>
+
+        <label>Hosťujúci Tím:</label>
+        <select id="awayTeam"></select>
+
+        <label>Dátum a Čas:</label>
+        <input type="datetime-local" id="matchDate">
+
+        <button onclick="saveMatch()">Uložiť do Kalendára</button>
+        
+        <p id="msg" class="success">Zápas bol úspešne naplánovaný!</p>
+
+        <div class="match-list">
+            <h3 style="color:#333; margin-bottom:15px;">Naplánované Zápasy</h3>
+            <div id="scheduledContainer">Načítavam...</div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = "https://Lucifer21sk.pythonanywhere.com";
+
+        // 1. Load Teams
+        async function loadTeams() {
+            const res = await fetch(`${API_BASE}/teams/all`);
+            const teams = await res.json();
+            
+            const home = document.getElementById("homeTeam");
+            const away = document.getElementById("awayTeam");
+
+            teams.forEach(t => {
+                const opt = `<option value="${t.id}">${t.name}</option>`;
+                home.innerHTML += opt;
+                away.innerHTML += opt;
+            });
+            
+            // Also load the list immediately
+            loadScheduledMatches();
+        }
+
+        // 2. Load Scheduled List (For Deleting)
+        async function loadScheduledMatches() {
+            const box = document.getElementById("scheduledContainer");
+            try {
+                const res = await fetch(`${API_BASE}/matches/upcoming`);
+                const matches = await res.json();
+
+                if (matches.length === 0) {
+                    box.innerHTML = "<p style='color:#777;'>Žiadne naplánované zápasy.</p>";
+                    return;
+                }
+
+                box.innerHTML = "";
+                matches.forEach(m => {
+                    box.innerHTML += `
+                        <div class="match-item">
+                            <div class="match-info">
+                                <span class="match-date">${m.date} ${m.time}</span><br>
+                                ${m.home_team} vs ${m.away_team}
+                            </div>
+                            <button class="delete-btn" onclick="deleteMatch(${m.id})">Odstrániť</button>
+                        </div>
+                    `;
+                });
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        // 3. Save Match
+        async function saveMatch() {
+            const homeId = document.getElementById("homeTeam").value;
+            const awayId = document.getElementById("awayTeam").value;
+            const dateVal = document.getElementById("matchDate").value;
+
+            if (homeId === awayId) { alert("Domáci a Hostia nemôžu byť ten istý tím!"); return; }
+            if (!dateVal) { alert("Vyberte dátum a čas!"); return; }
+
+            const response = await fetch(`${API_BASE}/schedule/create`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    home_team_id: homeId,
+                    away_team_id: awayId,
+                    date_time: dateVal
+                })
+            });
+
+            if (response.ok) {
+                document.getElementById("msg").style.display = "block";
+                setTimeout(() => document.getElementById("msg").style.display = "none", 3000);
+                loadScheduledMatches(); // Refresh the list automatically!
+            } else {
+                alert("Chyba pri ukladaní.");
+            }
+        }
+
+        // 4. Delete Match
+        async function deleteMatch(id) {
+            if (!confirm("Naozaj chcete odstrániť tento zápas?")) return;
+
+            const response = await fetch(`${API_BASE}/matches/${id}/delete`, {
+                method: "DELETE"
+            });
+
+            if (response.ok) {
+                loadScheduledMatches(); // Refresh the list
+            } else {
+                alert("Chyba pri mazaní.");
+            }
+        }
+
+        loadTeams();
+    </script>
+</body>
+</html>

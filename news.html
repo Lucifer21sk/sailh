@@ -3,71 +3,251 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SAILH - Novinky</title>
+    <title>SAILH - MIHWA Novinky</title>
     <link rel="stylesheet" href="styles.css" />
+    <style>
+        /* NEWS GRID LAYOUT */
+        .news-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .section-title {
+            color: #244b94;
+            border-bottom: 3px solid #d90f23;
+            display: inline-block;
+            padding-bottom: 5px;
+            margin-bottom: 30px;
+        }
+
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        /* TEXT-ONLY CARD STYLE */
+        .news-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
+            border-top: 4px solid #244b94; /* Blue top border */
+            height: 100%;
+        }
+
+        .news-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .news-content {
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        /* Date Style */
+        .news-date {
+            color: #d90f23; /* SAILH Red */
+            font-size: 0.85em;
+            font-weight: 800;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .news-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #244b94;
+            margin: 0 0 15px 0;
+            line-height: 1.3;
+        }
+
+        .news-excerpt {
+            font-size: 0.95em;
+            color: #555;
+            margin-bottom: 20px;
+            line-height: 1.6;
+            flex-grow: 1;
+        }
+
+        .read-more-btn {
+            display: inline-block;
+            text-align: center;
+            background: #f0f4ff;
+            color: #244b94;
+            text-decoration: none;
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 0.9em;
+            transition: background 0.2s;
+            margin-top: auto; /* Pushes button to bottom */
+        }
+
+        .read-more-btn:hover {
+            background: #244b94;
+            color: white;
+        }
+    </style>
 </head>
 <body>
+
     <header class="header">
         <div class="logo">
-            <img src="logo_80.png" alt="SAILH Logo" class="logo-img">
+            <picture>
+                <source srcset="logo_80.webp 1x, logo_160.webp 2x, logo_200.webp 3x" type="image/webp">
+                <source srcset="logo_80.png 1x, logo_160.png 2x, logo_200.png 3x" type="image/png">
+                <img src="logo_80.png" alt="SAILH Logo" class="logo-img">
+            </picture>
         </div>
         <div class="site-title">Slovenská asociácia in-line hokeja</div>
-        <nav class="menu">
+        <nav class="menu" role="navigation" aria-label="Hlavné menu">
             <a href="index.html">Domov</a>
-            <a href="news.html" class="active">Novinky</a>
-            <a href="gallery.html">Galéria</a>
-            <a href="clubs.html">Kluby</a>
-            <a href="partners.html">Partneri</a>
-            <a href="donate.html">Darujte 2%</a>
+            <a href="standing.html">Extraliga</a>
             <a href="https://www.inlineliga.sk">Amatérska liga</a>
+            <a href="clubs.html">Kluby</a>
+            <a href="news.html"  class="active">MIHWA</a>
+            <a href="gallery.html">Galéria</a>            
+            <a href="partners.html">Partneri</a>              
         </nav>
     </header>
 
-    <div class="layout">
-        <main class="hero main-content">
-            <h1>Novinky</h1>
-            <p>Najnovšie informácie z domáceho diania a asociácie.</p>
-            </main>
+    <div class="news-container">
+        
+        <div style="text-align: center; margin-bottom: 40px;">
+            <h1 style="color:#244b94; margin-bottom:10px;">MIHWA Svetové Novinky</h1>
+            <p style="color:#666; max-width: 700px; margin: 0 auto;">
+                Aktuálne informácie zo sveta Masters In-line Hockey World Association.
+            </p>
+        </div>
 
-        <aside class="rss-sidebar">
-            <div class="rss-box">
-                <h3>Svetové novinky</h3>
-                <p class="rss-source">Zdroj: MIHWA.org</p>
-                <div id="rss-feed-content"></div>
-                <div id="rss-error" class="rss-error" style="display:none; color:red;">Chyba pri načítaní RSS.</div>
-            </div>
-        </aside>
+        <h2 class="section-title">Najnovšie Články</h2>
+        
+        <div id="mihwa-grid" class="news-grid">
+            <p style="grid-column: 1/-1; text-align: center;">Načítavam správy zo sveta...</p>
+        </div>
+
     </div>
 
+<footer class="footer">
+        <div class="footer-container">      
+            <div class="footer-col">
+                <h4 class="footer-title">SAILH</h4>
+                <div class="footer-line"></div>
+                <p class="footer-text">
+                    Slovenská asociácia in-line hokeja.<br>
+                    Oreganová 1178/1<br>
+                    900 46 Most pri Bratislave<br>
+                    Studené
+                </p>
+                <p class="footer-text" style="margin-top: 15px; font-size: 0.85em; opacity: 0.7;">
+                    Registračné číslo: VVS/1-900/90-72711
+                </p>
+            </div>
+            <div class="footer-col">
+                <h4 class="footer-title">Rýchle Odkazy</h4>
+                <div class="footer-line"></div>
+                <ul class="footer-links">
+                    <li><a href="https://ives.minv.sk/rmno/detail/13542098669735168654">O asociácii</a></li>
+                    <li><a href="privacy-policy.html">Ochrana údajov</a></li>
+                    <li><a href="donate.html">Darujte 2%</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4 class="footer-title">Kontakt</h4>
+                <div class="footer-line"></div>
+                <div class="contact-item">
+                    <span class="icon">📧</span> 
+                    <a href="mailto:pejchalr@gmail.com">pejchalr@gmail.com</a>
+                </div>
+                <div class="contact-item">
+                    <span class="icon">📞</span> 
+                    <span>+421 905 627 715</span>
+                </div>
+                <div class="contact-item" style="margin-top: 20px;">
+                    <strong style="color:#d90f23; margin-right:5px;">IČO:</strong> 57133671
+                </div>
+                <div class="contact-item">
+                    <strong style="color:#d90f23; margin-right:5px;">DIČ:</strong> 2122632930
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            © 2026 SAILH - Všetky práva vyhradené
+        </div>
+    </footer>
+
     <script>
-        async function loadRSS() {
-            const url = "https://api.rss2json.com/v1/api.json?rss_url=https://www.mihwa.org/feed/";
-            const box = document.getElementById("rss-feed-content");
-            const dict = [ [/World/gi, "Svet"], [/Hockey/gi, "Hokej"], [/Inline/gi, "In-line"], [/Team/gi, "Tím"], [/Match/gi, "Zápas"] ];
+        async function loadMIHWANews() {
+            const RSS_URL = "https://mihwa.org/feed/";
+            const API_URL = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(RSS_URL)}`;
+            
+            const container = document.getElementById("mihwa-grid");
 
             try {
-                const res = await fetch(url);
+                const res = await fetch(API_URL);
                 const data = await res.json();
-                box.innerHTML = "";
+                
+                if (data.status !== "ok") {
+                    container.innerHTML = "<p>Nepodarilo sa načítať novinky.</p>";
+                    return;
+                }
 
-                data.items.slice(0,5).forEach(item => {
+                container.innerHTML = ""; 
+
+                // Dictionary to translate titles
+                const dict = [ 
+                    [/World/gi, "Svet"], 
+                    [/Hockey/gi, "Hokej"], 
+                    [/Inline/gi, "In-line"], 
+                    [/Team/gi, "Tím"], 
+                    [/Match/gi, "Zápas"],
+                    [/Championship/gi, "Šampionát"],
+                    [/Veterans/gi, "Veteráni"]
+                ];
+
+                data.items.forEach(item => {
+                    // 1. Translate Title
                     let title = item.title;
-                    dict.forEach(([from,to]) => title = title.replace(from,to));
-                    let desc = item.description.replace(/<[^>]*>/g, "").trim();
-                    if (desc.length > 140) desc = desc.substring(0,140) + "...";
+                    dict.forEach(([from, to]) => title = title.replace(from, to));
 
-                    box.innerHTML += `
-                    <div class="rss-item" style="padding:10px;background:#fff;border-left:4px solid #d90f23;margin-bottom:10px;border-radius:6px;box-shadow:0 1px 3px rgba(0,0,0,0.1);">
-                        <a href="${item.link}" target="_blank" style="font-weight:bold;color:#244b94;text-decoration:none;">${title}</a>
-                        <div style="font-size:12px;color:#666;margin-top:4px;">${new Date(item.pubDate).toLocaleDateString("sk-SK")}</div>
-                        <p style="font-size:11px; line-height:1.15; color:#555; margin-top:4px;">${desc}</p>
-                    </div>`;
+                    // 2. Clean Description
+                    let desc = item.description.replace(/<[^>]*>/g, "").trim();
+                    if (desc.length > 150) desc = desc.substring(0, 150) + "...";
+
+                    // 3. Format Date
+                    const dateObj = new Date(item.pubDate);
+                    const dateStr = dateObj.toLocaleDateString("sk-SK");
+
+                    // 4. Build Text-Only Card
+                    container.innerHTML += `
+                        <div class="news-card">
+                            <a href="${item.link}" target="_blank" style="text-decoration:none; color:inherit; height:100%; display:flex; flex-direction:column;">
+                                <div class="news-content">
+                                    <div class="news-date">${dateStr}</div>
+                                    <h3 class="news-title">${title}</h3>
+                                    <p class="news-excerpt">${desc}</p>
+                                    <span class="read-more-btn">Čítať viac</span>
+                                </div>
+                            </a>
+                        </div>
+                    `;
                 });
-            } catch(e) {
-                document.getElementById("rss-error").style.display = "block";
+
+            } catch (err) {
+                console.error(err);
+                container.innerHTML = "<p>Chyba pri pripojení k MIHWA.</p>";
             }
         }
-        loadRSS();
+
+        loadMIHWANews();
     </script>
 </body>
 </html>

@@ -3,12 +3,105 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Oficiálna stránka SAILH - Slovenská asociácia in-line hokeja. Novinky, kluby, galéria a podujatia." />
-    <meta name="author" content="SAILH" />
-    <title>SAILH</title>
+    <title>SAILH - Partneri</title>
     <link rel="stylesheet" href="styles.css" />
+    <style>
+        .partners-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+            text-align: center;
+        }
+
+        .section-heading {
+            color: #244b94;
+            font-size: 2em;
+            margin-bottom: 10px;
+            font-weight: 800;
+        }
+
+        .section-desc {
+            color: #666;
+            margin-bottom: 50px;
+            font-size: 1.1em;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* PARTNER GRID */
+        .partner-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Responsive columns */
+            gap: 40px;
+            align-items: center;
+            justify-items: center;
+            margin-bottom: 60px;
+        }
+
+        .partner-card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+            width: 100%;
+            height: 180px; /* Fixed height for uniformity */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #eee;
+            box-sizing: border-box; /* Ensures padding doesn't break width */
+        }
+
+        .partner-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            border-color: #244b94;
+        }
+
+        .partner-logo {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain; /* Ensures logo fits nicely */
+            filter: grayscale(100%); /* Elegant B&W look */
+            transition: filter 0.3s, opacity 0.3s;
+            opacity: 0.8;
+        }
+
+        .partner-card:hover .partner-logo {
+            filter: grayscale(0%); /* Color on hover */
+            opacity: 1;
+        }
+
+        /* Call to Action Box */
+        .become-partner-box {
+            background: linear-gradient(135deg, #244b94 0%, #1a3a7a 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 12px;
+            margin-top: 60px;
+        }
+
+        .partner-btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 30px;
+            background: #d90f23;
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+
+        .partner-btn:hover {
+            background: #b00b1b;
+        }
+    </style>
 </head>
 <body>
+
     <header class="header">
         <div class="logo">
             <picture>
@@ -20,85 +113,98 @@
         <div class="site-title">Slovenská asociácia in-line hokeja</div>
         <nav class="menu" role="navigation" aria-label="Hlavné menu">
             <a href="index.html">Domov</a>
-            <a href="news.html">Novinky</a>
-            <a href="gallery.html">Galéria</a>
-            <a href="clubs.html">Kluby</a>
-            <a href="partners.html">Partnery</a>
-            <a href="donate.html">Darujte 2%</a>
+            <a href="standing.html">Extraliga</a>
             <a href="https://www.inlineliga.sk">Amatérska liga</a>
+            <a href="clubs.html">Kluby</a>
+            <a href="news.html">MIHWA</a>
+            <a href="gallery.html">Galéria</a>            
+            <a href="partners.html"  class="active">Partneri</a>              
         </nav>
     </header>
-<main class="content-box">
-        <h1>Naši partneri</h1>
-        <p>
+
+    <div class="partners-container">
+        
+        <h1 class="section-heading">Naši Partneri</h1>
+        <p class="section-desc">
             Ďakujeme všetkým partnerom, ktorí podporujú rozvoj in-line hokeja na Slovensku.
             Vďaka nim môžeme organizovať podujatia, podporovať mládež a posúvať šport vpred.
         </p>
 
-        <div class="partners-grid">
-
+        <div class="partner-grid">
+            
             <a href="https://magicprint.sk" target="_blank" class="partner-card">
-                <img src="https://magicprint.sk/wp-content/uploads/2022/02/LOGOSTRED.png" alt="HUSTLE HOCKEY">
+                <img src="https://magicprint.sk/wp-content/uploads/2022/02/LOGOSTRED.png" alt="Magic Print" class="partner-logo">
             </a>
 
             <a href="https://sporthockey.sk" target="_blank" class="partner-card">
-                <img src="https://sporthockey.sk/wp-content/uploads/2025/01/sport-hockey-logo-2020-600x65.webp" alt="SportHockey">
+                <img src="https://sporthockey.sk/wp-content/uploads/2025/01/sport-hockey-logo-2020-600x65.webp" alt="SportHockey" class="partner-logo">
             </a>
 
             <a href="https://www.cmzo-sk.eu" target="_blank" class="partner-card">
-                <img src="https://www.cmzo-sk.eu/assets/images/cmzo_elektronika.png" alt="CMZO">
+                <img src="https://www.cmzo-sk.eu/assets/images/cmzo_elektronika.png" alt="CMZO" class="partner-logo">
             </a>
 
             <a href="https://arivalse.pro" target="_blank" class="partner-card">
-                <img src="https://alaviks.com/arival/arival_logo.png" alt="ARIVAL SE">
+                <img src="https://alaviks.com/arival/arival_logo.png" alt="ARIVAL SE" class="partner-logo">
             </a>
 
         </div>
-</main>
-<footer class="footer">
-    <div class="footer-grid">
 
-        <div>
-            <h4 class="footer-title">SAILH</h4>
-            <p class="footer-text">
-                Slovenská asociácia in-line hokeja.<br><br>
-                Oreganová 1178/1<br><br>
-                900 46 Most pri Bratislave - Studené<br><br>
-                Registračné číslo: VVS/1-900/90-72711<br>
-<br>
-        </div>
-
-        <div>
-            <h4 class="footer-title">Navigácia</h4>
-            <ul class="footer-list">
-                <li><a href="https://ives.minv.sk/rmno/detail/13542098669735168654">O asociácii</a></li>
-                <li><a href="clubs.html">Kluby</a></li>
-                <li><a href="https://www.inlineliga.sk/">Amatérska Liga</a></li>
-                <li><a href="partners.html">Partneri</a></li>
-                <li><a href="media.html">Médiá</a></li>
-                <li><a href="calendar.html">Kalendár</a></li>
-                <li><a href="privacy-policy.html">Ochrana údajov</a></li>
-            </ul>
-        </div>
-
-        <div>
-            <h4 class="footer-title">Kontakt</h4>
-            <p class="footer-text"><i class="fas fa-at icon-red"></i> pejchalr@gmail.com</p>
-            <p class="footer-text"><i class="fas fa-phone icon-red"></i> +421 905 627 715</p>
-            <p class="footer-text"><i class="fas fa-id-card icon-red"></i> IČO: 57133671</p>
-            <p class="footer-text"><i class="fas fa-file-alt icon-red"></i> DIČ: 2122632930</p>
-        </div>
-
-        <div>
-            <h4 class="footer-title">Newsletter</h4>
-            <p class="footer-text">Prihláste sa na odber noviniek:</p>
-            <input type="email" placeholder="Váš e-mail" class="footer-input">
-            <button class="footer-btn">Prihlásiť</button>
+        <div class="become-partner-box">
+            <h2 style="margin-top:0;">Staňte sa naším partnerom</h2>
+            <p>Máte záujem podporiť in-line hokej na Slovensku? Kontaktujte nás a preberieme možnosti spolupráce.</p>
+            <a href="mailto:pejchalr@gmail.com" class="partner-btn">Napíšte nám</a>
         </div>
 
     </div>
 
-    <div class="footer-bottom">© 2025 SAILH - Všetky práva vyhradené</div>
-</footer>
+<footer class="footer">
+        <div class="footer-container">      
+            <div class="footer-col">
+                <h4 class="footer-title">SAILH</h4>
+                <div class="footer-line"></div>
+                <p class="footer-text">
+                    Slovenská asociácia in-line hokeja.<br>
+                    Oreganová 1178/1<br>
+                    900 46 Most pri Bratislave<br>
+                    Studené
+                </p>
+                <p class="footer-text" style="margin-top: 15px; font-size: 0.85em; opacity: 0.7;">
+                    Registračné číslo: VVS/1-900/90-72711
+                </p>
+            </div>
+            <div class="footer-col">
+                <h4 class="footer-title">Rýchle Odkazy</h4>
+                <div class="footer-line"></div>
+                <ul class="footer-links">
+                    <li><a href="https://ives.minv.sk/rmno/detail/13542098669735168654">O asociácii</a></li>
+                    <li><a href="privacy-policy.html">Ochrana údajov</a></li>
+                    <li><a href="donate.html">Darujte 2%</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4 class="footer-title">Kontakt</h4>
+                <div class="footer-line"></div>
+                <div class="contact-item">
+                    <span class="icon">📧</span> 
+                    <a href="mailto:pejchalr@gmail.com">pejchalr@gmail.com</a>
+                </div>
+                <div class="contact-item">
+                    <span class="icon">📞</span> 
+                    <span>+421 905 627 715</span>
+                </div>
+                <div class="contact-item" style="margin-top: 20px;">
+                    <strong style="color:#d90f23; margin-right:5px;">IČO:</strong> 57133671
+                </div>
+                <div class="contact-item">
+                    <strong style="color:#d90f23; margin-right:5px;">DIČ:</strong> 2122632930
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            © 2026 SAILH - Všetky práva vyhradené
+        </div>
+    </footer>
+
 </body>
 </html>
