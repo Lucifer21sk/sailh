@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SAILH - Tabuľky & Štatistiky</title>
     <link rel="stylesheet" href="styles.css" />
-<style>
+    <style>
         .container {
             max-width: 1200px;
             margin: 30px auto;
@@ -89,25 +89,41 @@
             .stats-grid { grid-template-columns: 1fr; }
         }
 
-        /* HISTORY ITEMS - CENTERED TEXT FIX */
+        /* HISTORY ITEMS - NEW 3-COLUMN LAYOUT */
         .history-item {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 20px; /* More padding */
+            align-items: center; /* Vertically center everything */
+            padding: 12px 20px;
             border-bottom: 1px solid #eee;
             cursor: pointer;
             transition: background 0.2s;
         }
         .history-item:hover { background: #f0f4ff; }
         
-        /* The container for Date/Team/Score - Centers it! */
-        .history-info {
-            flex: 1; /* Takes up all available space */
-            text-align: center; /* Centers the text inside */
+        /* 1. Date on the LEFT (Fixed width ensures alignment) */
+        .h-date { 
+            width: 100px; 
+            text-align: left; 
+            font-size: 0.85em; 
+            color: #888; 
+            flex-shrink: 0; /* Prevents squishing */
         }
 
-        .h-date { font-size: 0.85em; color: #888; margin-right: 15px; }
+        /* 2. Match Info in the CENTER (Takes all remaining space) */
+        .h-match-info {
+            flex: 1;
+            text-align: center;
+        }
+
+        /* 3. Button on the RIGHT */
+        .h-btn {
+            width: 80px;
+            text-align: right;
+            font-size: 0.8em;
+            color: #244b94;
+            font-weight: bold;
+        }
+
         .h-score { font-weight: bold; color: #d90f23; font-size: 1.1em; margin: 0 15px; }
         
         /* MODAL */
@@ -129,7 +145,7 @@
             <a href="standing.html" class="active">Extraliga</a>
             <a href="https://www.inlineliga.sk">Amatérska liga</a>
             <a href="clubs.html">Kluby</a>
-            <a href="https://www.mihwa.org/">MIHWA</a>
+            <a href="news.html">MIHWA</a>
             <a href="gallery.html">Galéria</a>
             <a href="partners.html">Partneri</a>
         </nav>
@@ -139,7 +155,7 @@
 
         <h2 class="section-title">Zápasová História</h2>
         <div class="scroll-window" id="historyList">
-            <p style="padding:15px;">Načítavam históriu...</p>
+            <p style="padding:15px; text-align:center;">Načítavam históriu...</p>
         </div>
 
         <div class="stats-grid">
@@ -282,7 +298,7 @@
             } catch (e) { console.error(e); }
         }
 
-        // 3. Load History with Tooltips for SN/PP
+        // 3. Load History (NEW LAYOUT)
         async function loadHistory() {
             try {
                 const res = await fetch(`${API_BASE}/matches/history`);
@@ -291,30 +307,30 @@
                 list.innerHTML = "";
                 
                 if(data.length === 0) {
-                    list.innerHTML = "<p style='padding:15px;'>Zatiaľ žiadne odohrané zápasy.</p>";
+                    list.innerHTML = "<p style='padding:15px; text-align:center;'>Zatiaľ žiadne odohrané zápasy.</p>";
                     return;
                 }
 
                 data.forEach(m => {
                     let phaseLabel = "";
-                    
-                    // NEW: Dotted underline and tooltip logic
                     if (m.phase === 'overtime') {
-                        phaseLabel = ' <span title="Po predĺžení" style="cursor:help; text-decoration: underline dotted #aaa; font-weight:normal;">(PP)</span>';
+                        phaseLabel = ' <span class="tooltip-span" title="Po predĺžení">(PP)</span>';
                     }
                     if (m.phase === 'shootout') {
-                        phaseLabel = ' <span title="Po samostatných nájazdoch" style="cursor:help; text-decoration: underline dotted #aaa; font-weight:normal;">(SN)</span>';
+                        phaseLabel = ' <span class="tooltip-span" title="Po samostatných nájazdoch">(SN)</span>';
                     }
 
                     list.innerHTML += `
                         <div class="history-item" onclick="openMatchDetails(${m.id}, '${m.home_team} vs ${m.away_team}')">
-                            <div>
-                                <span class="h-date">${m.date}</span>
+                            <div class="h-date">${m.date}</div>
+                            
+                            <div class="h-match-info">
                                 <span style="font-weight:600">${m.home_team}</span>
                                 <span class="h-score">${m.home_score} : ${m.away_score}${phaseLabel}</span>
                                 <span style="font-weight:600">${m.away_team}</span>
                             </div>
-                            <div style="font-size:0.8em; color:#244b94;">Detaily ➝</div>
+
+                            <div class="h-btn">Detaily ➝</div>
                         </div>
                     `;
                 });
