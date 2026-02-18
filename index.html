@@ -28,10 +28,10 @@
             100% { opacity: 1; transform: scale(1); } 
         }
 
-        /* Štýl pre dátum v kalendári - aby bol výrazný */
+        /* Štýl pre dátum v kalendári */
         .calendar-date-highlight {
-            color: #244b94; /* Modrá farba SAILH */
-            font-weight: 900; /* Extra tučné */
+            color: #244b94; 
+            font-weight: 900; 
             font-size: 1.1em;
             margin-bottom: 2px;
         }
@@ -147,7 +147,6 @@
                 const allMatches = await res.json();
                 const box = document.getElementById("calendarList");
                 
-                // Filter: Iba budúce zápasy, ktoré nie sú LIVE
                 const matches = allMatches.filter(m => !m.is_finished && m.status !== "live");
 
                 if (matches.length === 0) {
@@ -155,11 +154,17 @@
                     return;
                 }
 
-                // Zoradenie podľa času
                 matches.sort((a, b) => new Date(a.date + ' ' + a.time) - new Date(b.date + ' ' + b.time));
 
                 box.innerHTML = "";
                 matches.forEach(m => {
+                    // --- ZMENA FORMÁTU DÁTUMU ---
+                    // Predpoklad: m.date je "RRRR-MM-DD"
+                    const parts = m.date.split('-');
+                    // Vytvoríme "DD.MM.RRRR" (alebo "DD-MM-RRRR" ak chcete pomlčky)
+                    const formattedDate = `${parts[2]}.${parts[1]}.${parts[0]}`; 
+                    // ----------------------------
+
                     let liveBtn = "";
                     if (m.livestream_url && m.livestream_url.length > 5) {
                         liveBtn = `<br><a href="${m.livestream_url}" target="_blank" class="live-btn-dynamic">▶ LIVE</a>`;
@@ -168,7 +173,7 @@
                     box.innerHTML += `
                         <div class="upcoming-item" style="background:#fff; border:1px solid #eee; padding:8px; border-radius:6px; text-align:center; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
                             <div style="margin-bottom:5px;">
-                                <div class="calendar-date-highlight">${m.date}</div>
+                                <div class="calendar-date-highlight">${formattedDate}</div>
                                 <div style="font-size:0.9em; font-weight:bold; color:#555;">${m.time}</div>
                             </div>
                             <div style="font-size:0.75em; width:100%; border-top:1px solid #f0f0f0; padding-top:5px;">
