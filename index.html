@@ -7,6 +7,35 @@
     <meta name="author" content="SAILH" />
     <title>SAILH - Domov</title>
     <link rel="stylesheet" href="styles.css" />
+    <style>
+        /* CSS pre pulzujúce tlačidlo LIVE */
+        .live-btn-dynamic {
+            display: inline-block;
+            background: #d90f23;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.8em;
+            text-transform: uppercase;
+            animation: pulse-live 2s infinite;
+            margin-bottom: 15px;
+        }
+        @keyframes pulse-live { 
+            0% { opacity: 1; transform: scale(1); } 
+            50% { opacity: 0.8; transform: scale(1.05); } 
+            100% { opacity: 1; transform: scale(1); } 
+        }
+
+        /* Štýl pre dátum v kalendári - aby bol výrazný */
+        .calendar-date-highlight {
+            color: #244b94; /* Modrá farba SAILH */
+            font-weight: 900; /* Extra tučné */
+            font-size: 1.1em;
+            margin-bottom: 2px;
+        }
+    </style>
 </head>
 <body>
     <header class="header">
@@ -35,19 +64,18 @@
         </video>
     </div>
 
-<div class="dashboard-grid">
+    <div class="dashboard-grid" style="display: grid; grid-template-columns: 580px 1fr 200px; gap: 15px; max-width: 1650px; margin: 0 auto;">
         
         <aside class="dashboard-left">
             <h3 style="color:#244b94; border-bottom:2px solid #d90f23; padding-bottom:10px; margin-top:0;">📅 Kalendár</h3>
-            
-            <div id="calendarList" class="upcoming-list">
+            <div id="calendarList" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; max-height: 600px; overflow-y: auto; padding-right:5px;">
                 <p>Načítavam...</p>
             </div>
         </aside>
 
         <main class="dashboard-center">
             <div class="live-scoreboard-section" style="margin-top:0; padding:0; background:transparent; box-shadow:none;">
-                <h2 style="text-align:center; color:#d90f23; margin-top:0;">Live Výsledky</h2>
+                <h2 style="text-align:center; color:#d90f23; margin-top:25px;">Live Zápasy</h2>
                 <div id="matchList" class="match-container">
                     <p style="text-align:center;">Načítavam zápasy...</p>
                 </div>
@@ -58,14 +86,11 @@
             <a href="standing.html" class="action-btn btn-results">
                 📊 Výsledky & Tabuľky
             </a>
-            <a href="https://www.youtube.com/@HOCKEYTV-LIVE/live" target="_blank" class="action-btn btn-live">
-                ▶ Sledovať Livestream
-            </a>
         </aside>
 
     </div>
 
-<footer class="footer">
+    <footer class="footer">
         <div class="footer-container">      
             <div class="footer-col">
                 <h4 class="footer-title">SAILH</h4>
@@ -113,120 +138,110 @@
         </div>
     </footer>
 
-<script>
-    const API_BASE = "https://Lucifer21sk.pythonanywhere.com";
-async function loadCalendar() {
+    <script>
+        const API_BASE = "https://Lucifer21sk.pythonanywhere.com";
+
+        async function loadCalendar() {
             try {
-                const res = await fetch(`${API_BASE}/matches/upcoming`);
-                const matches = await res.json();
+                const res = await fetch(`${API_BASE}/matches`);
+                const allMatches = await res.json();
                 const box = document.getElementById("calendarList");
                 
+                // Filter: Iba budúce zápasy, ktoré nie sú LIVE
+                const matches = allMatches.filter(m => !m.is_finished && m.status !== "live");
+
                 if (matches.length === 0) {
-                    box.innerHTML = "<p style='color:#666; font-size:0.9em; padding:10px;'>Žiadne naplánované zápasy.</p>";
+                    box.innerHTML = "<p style='color:#666; font-size:0.9em; padding:10px; grid-column: 1 / span 3;'>Žiadne naplánované zápasy.</p>";
                     return;
                 }
 
+                // Zoradenie podľa času
+                matches.sort((a, b) => new Date(a.date + ' ' + a.time) - new Date(b.date + ' ' + b.time));
+
                 box.innerHTML = "";
                 matches.forEach(m => {
-                    // Injecting the new "Date Box" layout
-                    box.innerHTML += `
-                        <div class="upcoming-item">
-                            
-                            <div class="calendar-date-box">
-                                <span class="c-date">${m.date}</span>
-                                <span class="c-time">${m.time}</span>
-                            </div>
+                    let liveBtn = "";
+                    if (m.livestream_url && m.livestream_url.length > 5) {
+                        liveBtn = `<br><a href="${m.livestream_url}" target="_blank" class="live-btn-dynamic">▶ LIVE</a>`;
+                    }
 
-                            <div class="calendar-teams">
-                                <div>${m.home_team}</div>
-                                <span class="vs-divider">vs</span>
-                                <div>${m.away_team}</div>
+                    box.innerHTML += `
+                        <div class="upcoming-item" style="background:#fff; border:1px solid #eee; padding:8px; border-radius:6px; text-align:center; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                            <div style="margin-bottom:5px;">
+                                <div class="calendar-date-highlight">${m.date}</div>
+                                <div style="font-size:0.9em; font-weight:bold; color:#555;">${m.time}</div>
+                            </div>
+                            <div style="font-size:0.75em; width:100%; border-top:1px solid #f0f0f0; padding-top:5px;">
+                                <div style="font-weight:bold; color:#000;">${m.home_team}</div>
+                                <div style="color:#999; margin:2px 0;">vs</div>
+                                <div style="font-weight:bold; color:#000;">${m.away_team}</div>
+                                ${liveBtn}
                             </div>
                         </div>
                     `;
                 });
-            } catch(e) {
-                console.error(e);
-            }
+            } catch(e) { console.error(e); }
         }
+
         async function loadMatches() {
             try {
-                const response = await fetch("https://Lucifer21sk.pythonanywhere.com/matches/public");
-                let matches = await response.json();
+                const [resPublic, resAll] = await Promise.all([
+                    fetch(`${API_BASE}/matches/public`),
+                    fetch(`${API_BASE}/matches`)
+                ]);
+                
+                const liveData = await resPublic.json();
+                const allMatches = await resAll.json();
 
-                matches = matches.filter(m => m.status === "live");
-
+                const activeMatches = liveData.filter(m => m.status === "live");
                 const container = document.getElementById("matchList");
                 container.innerHTML = ""; 
 
-                if (matches.length === 0) {
-                    container.innerHTML = "<p>Aktuálne sa nehrajú žiadne zápasy.</p>";
+                if (activeMatches.length === 0) {
+                    container.innerHTML = "<p style='text-align:center; padding:20px;'>Aktuálne sa nehrajú žiadne zápasy.</p>";
                     return;
                 }
 
-                matches.forEach(m => {
-                    const statusClass = "status-live";
-                    const statusText = "NAŽIVO";
-                    
-                    let phaseText = m.phase;
-                    if(phaseText === "normal") phaseText = "Základná hracia doba";
-                    if(phaseText === "overtime") phaseText = "Predĺženie";
-                    if(phaseText === "shootout") phaseText = "Nájazdy";
+                activeMatches.forEach(m => {
+                    const matchInfo = allMatches.find(x => x.id === m.id);
+                    const streamUrl = (matchInfo && matchInfo.livestream_url) ? matchInfo.livestream_url : null;
 
-                    // --- TIMELINE (Names Only) ---
+                    const statusIndicator = streamUrl 
+                        ? `<a href="${streamUrl}" target="_blank" class="live-btn-dynamic" style="font-size:0.9em; padding:8px 16px;">🔴 SLEDOVAŤ LIVE</a>`
+                        : `<div class="status-badge status-live" style="background:#d90f23; color:white; padding:4px 10px; border-radius:12px; font-size:0.8em; font-weight:bold; display:inline-block; margin-bottom:10px;">NAŽIVO</div>`;
+                    
+                    let phaseText = m.phase === "normal" ? "Základná hracia doba" : m.phase;
+
                     let eventsHtml = "";
                     if (m.events && m.events.length > 0) {
                         eventsHtml = '<div style="margin-top: 20px; border-top: 1px solid #ddd; padding-top: 10px; display: flex; flex-direction: column; gap: 8px;">';
-                        
                         m.events.forEach(e => {
-                            let alignStyle = "";
-                            let boxStyle = "padding: 6px 12px; border-radius: 6px; font-weight: bold; font-size: 0.95em; display: inline-block; max-width: 80%; box-shadow: 0 1px 2px rgba(0,0,0,0.1);";
-
-                            if (e.side === "home") {
-                                // Home Goal -> Left -> Blue
-                                alignStyle = "align-self: flex-start; text-align: left;";
-                                boxStyle += " background-color: #e3f2fd; color: #1565c0; border-left: 4px solid #1565c0;"; 
-                            } else {
-                                // Away Goal -> Right -> Red
-                                alignStyle = "align-self: flex-end; text-align: right;";
-                                boxStyle += " background-color: #fce4ec; color: #c2185b; border-right: 4px solid #c2185b;"; 
-                            }
-
-                            // Just the Scorer Name
-                            eventsHtml += `
-                                <div style="${alignStyle}">
-                                    <div style="${boxStyle}">
-                                        ${e.scorer}
-                                    </div>
-                                </div>`;
+                            let alignStyle = (e.side === "home") ? "align-self: flex-start; text-align: left;" : "align-self: flex-end; text-align: right;";
+                            let boxStyle = "padding: 6px 12px; border-radius: 6px; font-weight: bold; font-size: 0.95em; display: inline-block; max-width: 80%; background:" + (e.side === "home" ? "#e3f2fd" : "#fce4ec") + "; color:" + (e.side === "home" ? "#1565c0" : "#c2185b") + ";";
+                            eventsHtml += `<div style="${alignStyle}"><div style="${boxStyle}">${e.scorer}</div></div>`;
                         });
                         eventsHtml += '</div>';
                     }
-                    // -----------------------------
 
                     container.innerHTML += `
-                        <div class="match-card">
-                            <div class="status-badge ${statusClass}">${statusText}</div>
-                            <div class="scoreboard-display">
-                                <div class="team-name" style="text-align: right;">${m.home_team}</div>
-                                <div class="score-numbers">${m.home_score} - ${m.away_score}</div>
-                                <div class="team-name" style="text-align: left;">${m.away_team}</div>
+                        <div class="match-card" style="background:white; padding:15px; border-radius:8px; box-shadow:0 2px 5px rgba(0,0,0,0.1); margin-bottom:15px; text-align:center;">
+                            ${statusIndicator}
+                            <div style="display:grid; grid-template-columns: 1fr auto 1fr; align-items:center; gap:15px;">
+                                <div style="font-weight:bold;">${m.home_team}</div>
+                                <div style="font-size:1.8em; font-weight:800; color:#244b94; background:#f4f8ff; padding:5px 15px; border-radius:8px;">${m.home_score} - ${m.away_score}</div>
+                                <div style="font-weight:bold;">${m.away_team}</div>
                             </div>
-                            <div class="match-phase">${phaseText}</div>
+                            <div style="color:#666; font-size:0.9em; margin-top:10px;">${phaseText}</div>
                             ${eventsHtml}
                         </div>
                     `;
                 });
-
-            } catch (err) {
-                console.error("Error loading matches:", err);
-                document.getElementById("matchList").innerHTML = "<p>Chyba pri načítaní výsledkov.</p>";
-            }
+            } catch (err) { console.error(err); }
         }
 
         loadCalendar();
         loadMatches();
-        setInterval(loadMatches, 5000); 
+        setInterval(loadMatches, 10000); 
     </script>
 </body>
 </html>

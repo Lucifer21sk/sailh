@@ -3,160 +3,188 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plánovač Zápasov</title>
+    <title>Admin - Plánovač & Linky</title>
     <style>
-        body { font-family: sans-serif; padding: 20px; background: #f4f4f4; text-align: center; }
-        .container { max-width: 500px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        h2 { color: #244b94; margin-top: 0; }
-        label { display: block; margin: 15px 0 5px; font-weight: bold; text-align: left; }
+        body { font-family: sans-serif; padding: 20px; background: #f4f7f6; text-align: center; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        h2 { color: #244b94; margin-top: 0; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        
+        /* FORM STYLES */
+        .form-row { display: flex; gap: 10px; margin-bottom: 15px; }
+        label { display: block; margin: 5px 0 5px; font-weight: bold; text-align: left; }
         select, input { width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc; font-size: 16px; box-sizing: border-box; }
         
-        button { margin-top: 25px; width: 100%; padding: 12px; background: #244b94; color: white; border: none; border-radius: 5px; font-size: 18px; font-weight: bold; cursor: pointer; }
-        button:hover { background: #1a3a7a; }
-        
-        .success { color: green; margin-top: 15px; display: none; }
+        /* CREATE BUTTON */
+        .btn-create { margin-top: 15px; width: 100%; padding: 12px; background: #244b94; color: white; border: none; border-radius: 5px; font-size: 18px; font-weight: bold; cursor: pointer; }
+        .btn-create:hover { background: #1a3a7a; }
 
         /* LIST STYLES */
-        .match-list { margin-top: 40px; text-align: left; border-top: 2px solid #eee; padding-top: 20px; }
-        .match-item { 
-            background: #fff; 
-            border: 1px solid #ddd; 
-            padding: 10px; 
-            border-radius: 6px; 
-            margin-bottom: 10px; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
+        .match-list { margin-top: 30px; text-align: left; }
+        .match-card { 
+            background: #fff; border: 1px solid #ddd; padding: 15px; margin-bottom: 10px; border-radius: 8px; 
+            display: flex; flex-direction: column; gap: 10px;
         }
-        .match-info { font-size: 0.9em; }
-        .match-date { font-weight: bold; color: #d90f23; }
+        .match-header { font-weight: bold; color: #333; display: flex; justify-content: space-between; }
+        .match-teams { font-size: 1.1em; color: #244b94; }
+
+        .link-row { display: flex; gap: 10px; align-items: center; background: #f9f9f9; padding: 8px; border-radius: 5px; }
+        .link-input { padding: 5px; font-size: 0.9em; flex-grow: 1; border: 1px solid #ccc; }
         
-        .delete-btn {
-            background: #d90f23;
-            color: white;
-            border: none;
-            padding: 5px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.8em;
-            margin-top: 0; /* Reset margin */
-            width: auto;   /* Reset width */
-        }
-        .delete-btn:hover { background: #b00b1b; }
+        .btn-save { background: #28a745; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .btn-del { background: #d90f23; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; margin-left: auto; }
+        
+        .msg { color: green; font-weight: bold; display: none; margin-top: 10px; }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h2>📅 Naplánovať Zápas</h2>
+        <h2>📅 Vytvoriť Nový Zápas</h2>
         
-        <label>Domáci Tím:</label>
-        <select id="homeTeam"></select>
-
-        <label>Hosťujúci Tím:</label>
-        <select id="awayTeam"></select>
-
-        <label>Dátum a Čas:</label>
-        <input type="datetime-local" id="matchDate">
-
-        <button onclick="saveMatch()">Uložiť do Kalendára</button>
-        
-        <p id="msg" class="success">Zápas bol úspešne naplánovaný!</p>
-
-        <div class="match-list">
-            <h3 style="color:#333; margin-bottom:15px;">Naplánované Zápasy</h3>
-            <div id="scheduledContainer">Načítavam...</div>
+        <div class="form-row">
+            <div style="flex:1">
+                <label>Dátum:</label>
+                <input type="date" id="matchDate">
+            </div>
+            <div style="flex:1">
+                <label>Čas:</label>
+                <input type="time" id="matchTime">
+            </div>
         </div>
+
+        <div class="form-row">
+            <div style="flex:1">
+                <label>Domáci:</label>
+                <select id="homeTeam"></select>
+            </div>
+            <div style="flex:1">
+                <label>Hostia:</label>
+                <select id="awayTeam"></select>
+            </div>
+        </div>
+
+        <button class="btn-create" onclick="createMatch()">+ Pridať do Kalendára</button>
+        <div id="msg" class="msg">Zápas úspešne vytvorený!</div>
+
+        <h2 style="margin-top: 40px;">📋 Správa Zápasov & Linkov</h2>
+        <div id="matchesList" class="match-list">Načítavam...</div>
     </div>
 
     <script>
         const API_BASE = "https://Lucifer21sk.pythonanywhere.com";
 
-        // 1. Load Teams
+        // 1. Load Teams on Startup
         async function loadTeams() {
-            const res = await fetch(`${API_BASE}/teams/all`);
-            const teams = await res.json();
-            
-            const home = document.getElementById("homeTeam");
-            const away = document.getElementById("awayTeam");
+            try {
+                const response = await fetch(`${API_BASE}/teams`);
+                const teams = await response.json();
+                
+                const homeSelect = document.getElementById("homeTeam");
+                const awaySelect = document.getElementById("awayTeam");
 
-            teams.forEach(t => {
-                const opt = `<option value="${t.id}">${t.name}</option>`;
-                home.innerHTML += opt;
-                away.innerHTML += opt;
-            });
-            
-            // Also load the list immediately
-            loadScheduledMatches();
+                teams.forEach(t => {
+                    homeSelect.innerHTML += `<option value="${t.id}">${t.name}</option>`;
+                    awaySelect.innerHTML += `<option value="${t.id}">${t.name}</option>`;
+                });
+                
+                loadScheduledMatches();
+            } catch (err) { console.error(err); }
         }
 
-        // 2. Load Scheduled List (For Deleting)
+        // 2. Load Existing Matches
         async function loadScheduledMatches() {
-            const box = document.getElementById("scheduledContainer");
             try {
-                const res = await fetch(`${API_BASE}/matches/upcoming`);
-                const matches = await res.json();
+                const response = await fetch(`${API_BASE}/matches`);
+                const matches = await response.json();
+                const container = document.getElementById("matchesList");
+                
+                const upcoming = matches.filter(m => !m.is_finished);
 
-                if (matches.length === 0) {
-                    box.innerHTML = "<p style='color:#777;'>Žiadne naplánované zápasy.</p>";
+                container.innerHTML = "";
+                if (upcoming.length === 0) {
+                    container.innerHTML = "<p>Žiadne naplánované zápasy.</p>";
                     return;
                 }
 
-                box.innerHTML = "";
-                matches.forEach(m => {
-                    box.innerHTML += `
-                        <div class="match-item">
-                            <div class="match-info">
-                                <span class="match-date">${m.date} ${m.time}</span><br>
-                                ${m.home_team} vs ${m.away_team}
+                upcoming.forEach(m => {
+                    const existingLink = m.livestream_url ? m.livestream_url : "";
+                    
+                    container.innerHTML += `
+                        <div class="match-card">
+                            <div class="match-header">
+                                <span>📅 ${m.date} | 🕒 ${m.time}</span>
                             </div>
-                            <button class="delete-btn" onclick="deleteMatch(${m.id})">Odstrániť</button>
+                            <div class="match-teams">${m.home_team} vs ${m.away_team}</div>
+                            
+                            <div class="link-row">
+                                <span>📺</span>
+                                <input type="text" id="link-${m.id}" class="link-input" value="${existingLink}" placeholder="Sem vložte YouTube link...">
+                                <button class="btn-save" onclick="saveLink(${m.id})">Uložiť Link</button>
+                            </div>
+
+                            <div style="text-align:right; margin-top:5px;">
+                                <button class="btn-del" onclick="deleteMatch(${m.id})">🗑️ Zmazať Zápas</button>
+                            </div>
                         </div>
                     `;
                 });
-            } catch (err) {
-                console.error(err);
-            }
+            } catch (err) { console.error(err); }
         }
 
-        // 3. Save Match
-        async function saveMatch() {
+        // 3. Create New Match (LOCATION REMOVED)
+        async function createMatch() {
             const homeId = document.getElementById("homeTeam").value;
             const awayId = document.getElementById("awayTeam").value;
             const dateVal = document.getElementById("matchDate").value;
+            const timeVal = document.getElementById("matchTime").value;
 
             if (homeId === awayId) { alert("Domáci a Hostia nemôžu byť ten istý tím!"); return; }
-            if (!dateVal) { alert("Vyberte dátum a čas!"); return; }
+            if (!dateVal || !timeVal) { alert("Vyberte dátum a čas!"); return; }
 
-            const response = await fetch(`${API_BASE}/schedule/create`, {
+            const response = await fetch(`${API_BASE}/matches`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     home_team_id: homeId,
                     away_team_id: awayId,
-                    date_time: dateVal
+                    date: dateVal,
+                    time: timeVal,
+                    livestream_url: "" 
+                    // NO LOCATION HERE
                 })
             });
 
             if (response.ok) {
                 document.getElementById("msg").style.display = "block";
                 setTimeout(() => document.getElementById("msg").style.display = "none", 3000);
-                loadScheduledMatches(); // Refresh the list automatically!
+                loadScheduledMatches();
             } else {
                 alert("Chyba pri ukladaní.");
             }
         }
 
-        // 4. Delete Match
-        async function deleteMatch(id) {
-            if (!confirm("Naozaj chcete odstrániť tento zápas?")) return;
-
-            const response = await fetch(`${API_BASE}/matches/${id}/delete`, {
-                method: "DELETE"
+        // 4. Save YouTube Link
+        async function saveLink(matchId) {
+            const linkVal = document.getElementById(`link-${matchId}`).value;
+            const response = await fetch(`${API_BASE}/matches/update_link`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ match_id: matchId, livestream_url: linkVal })
             });
 
             if (response.ok) {
-                loadScheduledMatches(); // Refresh the list
+                alert("✅ Link uložený! Tlačidlo sa zobrazí na stránke.");
+            } else {
+                alert("❌ Chyba pri ukladaní linku.");
+            }
+        }
+
+        // 5. Delete Match
+        async function deleteMatch(id) {
+            if (!confirm("Naozaj chcete odstrániť tento zápas? Toto sa nedá vrátiť.")) return;
+            const response = await fetch(`${API_BASE}/matches/${id}/delete`, { method: "DELETE" });
+            if (response.ok) {
+                loadScheduledMatches();
             } else {
                 alert("Chyba pri mazaní.");
             }
