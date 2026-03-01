@@ -33,7 +33,6 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.05);
         }
 
-        /* CUSTOM SCROLLBAR */
         .scroll-window::-webkit-scrollbar { width: 8px; }
         .scroll-window::-webkit-scrollbar-track { background: #f1f1f1; }
         .scroll-window::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
@@ -52,23 +51,12 @@
             font-size: 0.95em;
         }
 
-        /* STICKY HEADER */
         .data-table thead th {
             position: sticky;
             top: 0;
             background: #244b94;
             color: white;
             z-index: 2;
-            box-shadow: 0 2px 2px rgba(0,0,0,0.1);
-        }
-
-        /* TOOLTIP STYLES */
-        th[title], .tooltip-span {
-            cursor: help;
-            text-decoration: underline dotted rgba(0, 0, 0, 0.4);
-        }
-        th[title] {
-            text-decoration: underline dotted rgba(255, 255, 255, 0.5);
         }
 
         .data-table tr:hover { background-color: #f9f9f9; }
@@ -89,55 +77,43 @@
             .stats-grid { grid-template-columns: 1fr; }
         }
 
-        /* HISTORY ITEMS - NEW 3-COLUMN LAYOUT */
+        /* Tvoj pôvodný dizajn zoznamu zápasov */
         .history-item {
             display: flex;
-            align-items: center; /* Vertically center everything */
+            align-items: center; 
             padding: 12px 20px;
             border-bottom: 1px solid #eee;
-            cursor: pointer;
             transition: background 0.2s;
         }
         .history-item:hover { background: #f0f4ff; }
         
-        /* 1. Date on the LEFT (Fixed width ensures alignment) */
-        .h-date { 
-            width: 100px; 
-            text-align: left; 
-            font-size: 0.85em; 
-            color: #888; 
-            flex-shrink: 0; /* Prevents squishing */
-        }
-
-        /* 2. Match Info in the CENTER (Takes all remaining space) */
-        .h-match-info {
-            flex: 1;
-            text-align: center;
-        }
-
-        /* 3. Button on the RIGHT */
+        .h-date { width: 100px; text-align: left; font-size: 0.85em; color: #888; flex-shrink: 0; }
+        .h-match-info { flex: 1; text-align: center; }
         .h-btn {
-            width: 80px;
-            text-align: right;
-            font-size: 0.8em;
-            color: #244b94;
-            font-weight: bold;
+            width: 80px; text-align: right; font-size: 0.8em; color: #244b94; font-weight: bold; cursor: pointer;
         }
-
         .h-score { font-weight: bold; color: #d90f23; font-size: 1.1em; margin: 0 15px; }
         
         /* MODAL */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(3px); }
-        .modal-content { background: white; margin: 10% auto; padding: 25px; border-radius: 12px; width: 90%; max-width: 500px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
-        .close-btn { float: right; font-size: 28px; cursor: pointer; color: #aaa; }
+        .modal-content { background: #fff; margin: 5% auto; padding: 25px; border-radius: 12px; width: 95%; max-width: 700px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+        .close-btn { float: right; font-size: 28px; cursor: pointer; color: #aaa; margin-top: -5px; }
         .close-btn:hover { color: #d90f23; }
+        
+        /* Modálne tabuľky riadkov pre tresty a góly */
+        .row-goal { background-color: #ffffff; }
+        .row-penalty { background-color: #fff8e1; color: #e65100; }
     </style>
 </head>
 <body>
 
     <header class="header">
         <div class="logo">
-            <img src="logo.png" alt="SAILH Logo" class="logo-img">
+            <picture>
+                <source srcset="logo_80.webp 1x, logo_160.webp 2x, logo_200.webp 3x" type="image/webp">
+                <source srcset="logo_80.png 1x, logo_160.png 2x, logo_200.png 3x" type="image/png">
+                <img src="logo_80.png" alt="SAILH Logo" class="logo-img">
+            </picture>
         </div>
         <div class="site-title">Slovenská asociácia in-line hokeja</div>
         <nav class="menu">
@@ -159,7 +135,6 @@
         </div>
 
         <div class="stats-grid">
-            
             <div>
                 <h2 class="section-title">Tabuľka Tímov</h2>
                 <div style="overflow-x: auto; border:1px solid #ddd; border-radius:8px;">
@@ -191,6 +166,7 @@
                             <tr>
                                 <th>#</th>
                                 <th class="name-col">Meno</th>
+                                <th title="Tím">Tím</th>
                                 <th title="Počet odohraných zápasov">Z</th>
                                 <th title="Góly">G</th>
                                 <th title="Asistencie">A</th>
@@ -203,7 +179,6 @@
                     </table>
                 </div>
             </div>
-
         </div>
 
     </div>
@@ -211,8 +186,8 @@
     <div id="detailsModal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal()">&times;</span>
-            <h2 id="modalTitle" style="color:#244b94; margin-top:0; border-bottom:2px solid #ddd; padding-bottom:10px;">Detaily</h2>
-            <div id="modalBody" style="max-height:400px; overflow-y:auto;"></div>
+            <h2 id="modalTitle" style="color:#244b94; margin-top:0; border-bottom:2px solid #ddd; padding-bottom:10px; font-size:1.3em;">Detaily</h2>
+            <div id="modalBody" style="max-height:450px; overflow-y:auto;"></div>
         </div>
     </div>
 
@@ -221,20 +196,7 @@
             <div class="footer-col">
                 <h4 class="footer-title">SAILH</h4>
                 <div class="footer-line"></div>
-                <p class="footer-text">
-                    Slovenská asociácia in-line hokeja.<br>
-                    Oreganová 1178/1<br>
-                    900 46 Most pri Bratislave
-                </p>
-            </div>
-            <div class="footer-col">
-                <h4 class="footer-title">Rýchle Odkazy</h4>
-                <div class="footer-line"></div>
-                <ul class="footer-links">
-                    <li><a href="index.html">Domov</a></li>
-                    <li><a href="standing.html">Extraliga</a></li>
-                    <li><a href="clubs.html">Kluby</a></li>
-                </ul>
+                <p class="footer-text">Slovenská asociácia in-line hokeja.</p>
             </div>
             <div class="footer-col">
                 <h4 class="footer-title">Kontakt</h4>
@@ -248,7 +210,6 @@
     <script>
         const API_BASE = "https://Lucifer21sk.pythonanywhere.com";
 
-        // 1. Load Teams
         async function loadTeams() {
             try {
                 const res = await fetch(`${API_BASE}/stats/teams`);
@@ -271,14 +232,12 @@
             } catch (e) { console.error(e); }
         }
 
-        // 2. Load Players
         async function loadPlayers() {
             try {
                 const res = await fetch(`${API_BASE}/stats/players`);
                 const data = await res.json();
                 const tbody = document.getElementById("playerTable");
                 tbody.innerHTML = "";
-                
                 data.forEach((p, i) => { 
                     let rank = `${i + 1}.`;
                     if (i === 0) rank = "🥇";
@@ -289,6 +248,7 @@
                         <tr>
                             <td class="rank-col">${rank}</td>
                             <td class="name-col">${p.name}</td>
+                            <td style="color:#666; font-size:0.9em; font-weight:bold;">${p.team}</td>
                             <td>${p.gp}</td>
                             <td>${p.g}</td>
                             <td>${p.a}</td>
@@ -298,7 +258,7 @@
             } catch (e) { console.error(e); }
         }
 
-        // 3. Load History (NEW LAYOUT)
+        // Tvoja pôvodná kompaktná história zápasov
         async function loadHistory() {
             try {
                 const res = await fetch(`${API_BASE}/matches/history`);
@@ -312,24 +272,24 @@
                 }
 
                 data.forEach(m => {
+                    let formattedDate = m.date;
+                    if (m.date && m.date.includes('-')) {
+                        const parts = m.date.split('-');
+                        formattedDate = `${parts[2]}.${parts[1]}.${parts[0]}`;
+                    }
+
                     let phaseLabel = "";
-                    if (m.phase === 'overtime') {
-                        phaseLabel = ' <span class="tooltip-span" title="Po predĺžení">(PP)</span>';
-                    }
-                    if (m.phase === 'shootout') {
-                        phaseLabel = ' <span class="tooltip-span" title="Po samostatných nájazdoch">(SN)</span>';
-                    }
+                    if (m.phase === 'overtime') phaseLabel = ' <span title="Po predĺžení" style="font-size:0.7em;">(PP)</span>';
+                    if (m.phase === 'shootout') phaseLabel = ' <span title="Po samostatných nájazdoch" style="font-size:0.7em;">(SN)</span>';
 
                     list.innerHTML += `
                         <div class="history-item" onclick="openMatchDetails(${m.id}, '${m.home_team} vs ${m.away_team}')">
-                            <div class="h-date">${m.date}</div>
-                            
+                            <div class="h-date">${formattedDate}</div>
                             <div class="h-match-info">
                                 <span style="font-weight:600">${m.home_team}</span>
                                 <span class="h-score">${m.home_score} : ${m.away_score}${phaseLabel}</span>
                                 <span style="font-weight:600">${m.away_team}</span>
                             </div>
-
                             <div class="h-btn">Detaily ➝</div>
                         </div>
                     `;
@@ -337,42 +297,72 @@
             } catch (e) { console.error(e); }
         }
 
-        // 4. Modal
+        // Aktualizovaný Modal - Teraz ťahá góly aj tresty do tabuľky
         async function openMatchDetails(matchId, titleText) {
             const modal = document.getElementById("detailsModal");
             const body = document.getElementById("modalBody");
             document.getElementById("modalTitle").innerText = titleText;
             
             modal.style.display = "block";
-            body.innerHTML = "Načítavam...";
+            body.innerHTML = "<p style='text-align:center;'>Načítavam detaily...</p>";
 
             try {
+                // Tento fetch teraz zavolá nový python kód, ktorý vráti góly aj tresty
                 const res = await fetch(`${API_BASE}/matches/${matchId}/details`);
                 const events = await res.json();
                 
                 if (events.length === 0) {
-                    body.innerHTML = "<p>Žiadne góly v tomto zápase.</p>";
+                    body.innerHTML = "<p style='text-align:center;'>Žiadne detaily (góly ani tresty) k tomuto zápasu.</p>";
                     return;
                 }
 
-                let html = `<table class="data-table" style="font-size:0.9em;">
-                            <thead><tr><th>Skóre</th><th>Tím</th><th>Strelec</th><th>Asistencie</th></tr></thead><tbody>`;
+                let html = `<table class="data-table" style="font-size:0.95em;">
+                            <thead>
+                                <tr>
+                                    <th>Čas</th>
+                                    <th>Typ</th>
+                                    <th>Stav</th>
+                                    <th>Tím</th>
+                                    <th>Hráč</th>
+                                    <th>Asistencie / Trest</th>
+                                </tr>
+                            </thead>
+                            <tbody>`;
                 
                 events.forEach(e => {
-                    let assists = "";
-                    if (e.a1) assists += e.a1;
-                    if (e.a2) assists += ", " + e.a2;
-                    
-                    html += `<tr>
-                        <td style="font-weight:bold; color:#d90f23;">${e.score}</td>
-                        <td>${e.team}</td>
-                        <td style="font-weight:bold;">${e.scorer}</td>
-                        <td style="color:#666;">${assists}</td>
-                    </tr>`;
+                    let minuteStr = e.minute ? `${e.minute}'` : "-";
+
+                    if (e.type === "goal") {
+                        let assists = "";
+                        if (e.a1) assists += e.a1;
+                        if (e.a2) assists += ", " + e.a2;
+                        
+                        html += `<tr class="row-goal">
+                            <td style="color:#888; font-weight:bold;">${minuteStr}</td>
+                            <td title="Gól">🏒</td>
+                            <td style="font-weight:bold; color:#d90f23;">${e.score}</td>
+                            <td style="font-weight:bold;">${e.team}</td>
+                            <td style="font-weight:bold; color:#1565c0;">${e.player}</td>
+                            <td style="color:#666;">${assists}</td>
+                        </tr>`;
+                    } else if (e.type === "penalty") {
+                        html += `<tr class="row-penalty">
+                            <td style="font-weight:bold;">${minuteStr}</td>
+                            <td title="Trest">⏱️</td>
+                            <td style="font-weight:bold; color:#ccc;">${e.score}</td>
+                            <td style="font-weight:bold;">${e.team}</td>
+                            <td style="font-weight:bold;">${e.player}</td>
+                            <td style="font-style:italic; font-weight:bold;">${e.reason}</td>
+                        </tr>`;
+                    }
                 });
+                
                 html += "</tbody></table>";
                 body.innerHTML = html;
-            } catch (e) { body.innerHTML = "Chyba."; }
+            } catch (e) { 
+                body.innerHTML = "<p style='text-align:center; color:red;'>Chyba pri načítaní detailov.</p>"; 
+                console.error(e);
+            }
         }
 
         function closeModal() { document.getElementById("detailsModal").style.display = "none"; }

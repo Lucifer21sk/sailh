@@ -125,11 +125,6 @@ body {
     margin-top: 25px;
 }
 
-/* 2. Center (Live Scoreboard) */
-.dashboard-center {
-    /* No background here, the cards inside have backgrounds */
-}
-
 /* 3. Right Sidebar (Buttons) */
 .dashboard-right {
     display: flex;
