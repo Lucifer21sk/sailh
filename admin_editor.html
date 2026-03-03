@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAILH - Editor Zápasov</title>
+    <style>
+        body { font-family: sans-serif; background: #f4f7f6; margin: 0; padding: 20px; }
+        #post-editor { max-width: 900px; margin: 0 auto; text-align: left; }
+        #post-editor .container { background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        #post-editor h2 { color: #244b94; margin-top: 0; border-bottom: 2px solid #eee; padding-bottom: 10px; text-transform: uppercase;}
+        #post-editor .form-row { display: flex; gap: 15px; margin-bottom: 20px; }
+        #post-editor .form-row > div { flex: 1; }
+        #post-editor label { display: block; font-weight: bold; font-size: 0.9em; margin-bottom: 5px; color:#555;}
+        #post-editor select, #post-editor input { width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #ccc; font-size: 15px; }
+        #post-editor .section-title { background: #244b94; color: white; padding: 10px; font-weight: bold; margin-top: 20px; border-radius: 5px; }
+        #post-editor .event-row { display: flex; align-items: center; justify-content: space-between; background: #fafafa; padding: 12px; border-bottom: 1px solid #eee; gap: 10px; }
+        #post-editor .event-row:hover { background: #f0f4ff; }
+        #post-editor .event-info { flex: 1; font-size: 0.95em; }
+        #post-editor .btn { padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.85em; transition: 0.2s;}
+        #post-editor .btn-edit { background: #f0ad4e; color: white; }
+        #post-editor .btn-edit:hover { background: #e0a040; }
+        #post-editor .btn-delete { background: #d90f23; color: white; margin-left: 5px; }
+        #post-editor .btn-delete:hover { background: #b00b1b; }
+        #post-editor .btn-save { background: #28a745; color: white; }
+        #post-editor .btn-cancel { background: #6c757d; color: white; margin-left: 5px; }
+        #post-editor .edit-mode { background: #eef2f5; display: flex; gap: 10px; padding: 15px; flex-wrap: wrap; border-radius: 6px; border-left: 4px solid #f0ad4e; margin-bottom: 5px;}
+        #post-editor .edit-col { flex: 1; min-width: 140px; }
+    </style>
+</head>
+<body>
+
+<div id="post-editor">
+    <div class="container">
+        <h2>✏️ Oprava: Góly a Tresty</h2>
+        
+        <div class="form-row">
+            <div>
+                <label>Vyber ukončený zápas</label>
+                <select id="matchSelect" onchange="loadMatchEvents()"><option value="">Načítavam...</option></select>
+            </div>
+        </div>
+
+        <div id="editorContent" style="display:none;">
+            <div class="section-title">🏒 GÓLY</div>
+            <div id="goalsList"></div>
+
+            <div class="section-title" style="background: #d90f23;">⏱️ TRESTY</div>
+            <div id="penaltiesList"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const API_BASE = "https://Lucifer21sk.pythonanywhere.com";
+    let currentMatch = null;
+    let rosters = {}; 
+
+    document.addEventListener("DOMContentLoaded", loadMatches);
+
+    // 1. Načíta odohrané zápasy
+    async function loadMatches() {
+        const matchSelect = document.getElementById("matchSelect");
+        matchSelect.innerHTML = "<option value=''>Načítavam...</option>";
+
+        try {
+            const res = await fetch(`${API_BASE}/matches`);
+            const matches = await res.json();
+            
+            const finished = matches.filter(m => m.is_finished);
+            finished.sort((a, b) => b.id - a.id); // Od najnovších
+            
+            matchSelect.innerHTML = "<option value=''>-- Vyber zápas na úpravu --</option>";
+            finished.forEach(m => {
+                let dateStr = m.date.split('-').reverse().join('.');
+                matchSelect.innerHTML += `<option value="${m.id}" data-home="${m.home_team_id}" data-away="${m.away_team_id}" data-homename="${m.home_team}" data-awayname="${m.away_team}">📅 ${dateStr} | ${m.home_team} ${m.home_score}:${m.away_score} ${m.away_team}</option>`;
+            });
+            document.getElementById("editorContent").style.display = "none";
+        } catch(e) { console.error(e); }
+    }
+
+    // 2. Načíta udalosti
+    async function loadMatchEvents() {
+        const select = document.getElementById("matchSelect");
+        if (!select.value) {
+            document.getElementById("editorContent").style.display = "none";
+            return;
+        }
+
+        const opt = select.options[select.selectedIndex];
+        currentMatch = {
+            id: select.value,
+            home_id: opt.getAttribute("data-home"), 
+            away_id: opt.getAttribute("data-away"),
+            home_name: opt.getAttribute("data-homename"), 
+            away_name: opt.getAttribute("data-awayname")
+        };
+
+        document.getElementById("editorContent").style.display = "block";
+        document.getElementById("goalsList").innerHTML = "Načítavam góly...";
+        document.getElementById("penaltiesList").innerHTML = "Načítavam tresty...";
+
+        try {
+            const [homeRes, awayRes] = await Promise.all([
+                fetch(`${API_BASE}/players/${currentMatch.home_id}`),
+                fetch(`${API_BASE}/players/${currentMatch.away_id}`)
+            ]);
+            rosters[currentMatch.home_id] = await homeRes.json();
+            rosters[currentMatch.away_id] = await awayRes.json();
+
+            const eventRes = await fetch(`${API_BASE}/admin/matches/${currentMatch.id}/events`);
+            const events = await eventRes.json();
+            
+            renderGoals(events.goals);
+            renderPenalties(events.penalties);
+        } catch(e) { console.error(e); }
+    }
+
+    function buildPlayerSelect(teamId, selectedId, emptyText = "Nikto") {
+        let html = `<select><option value="">-- ${emptyText} --</option>`;
+        (rosters[teamId] || []).forEach(p => {
+            const isSel = (p.id == selectedId) ? "selected" : "";
+            html += `<option value="${p.id}" ${isSel}>${p.number ? p.number+' - ' : ''}${p.name}</option>`;
+        });
+        html += `</select>`;
+        return html;
+    }
+
+    function getPlayerName(teamId, playerId) {
+        if (!playerId) return "Neznámy";
+        const p = (rosters[teamId] || []).find(x => x.id == playerId);
+        return p ? p.name : "Neznámy";
+    }
+
+    // ================= GÓLY =================
+    function renderGoals(goals) {
+        const container = document.getElementById("goalsList");
+        container.innerHTML = "";
+        if(goals.length === 0) { container.innerHTML = "<div class='event-row'>Žiadne góly.</div>"; return; }
+
+        goals.forEach(g => {
+            const teamName = g.team_id == currentMatch.home_id ? currentMatch.home_name : currentMatch.away_name;
+            const scorer = getPlayerName(g.team_id, g.player_id);
+            const a1 = getPlayerName(g.team_id, g.assist1_id);
+            const a2 = getPlayerName(g.team_id, g.assist2_id);
+            const minuteStr = g.minute ? g.minute + "'" : "-";
+
+            const div = document.createElement("div");
+            div.className = "event-row";
+            div.id = `goal-${g.id}`;
+            
+            div.innerHTML = `
+                <div class="event-info">
+                    <strong style="color:#244b94;">${minuteStr}</strong> | <strong>${teamName}</strong> <br>
+                    Gól: <span style="color:#d90f23; font-weight:bold;">${scorer}</span> 
+                    <span style="color:#666; font-size:0.9em;">(A: ${a1 !== "Neznámy" ? a1 : '-'}, ${a2 !== "Neznámy" ? a2 : '-'})</span>
+                </div>
+                <div>
+                    <button class="btn btn-edit" onclick="editGoal(${g.id}, ${g.team_id}, '${g.minute || ''}', ${g.player_id || null}, ${g.assist1_id || null}, ${g.assist2_id || null})">Upraviť</button>
+                    <button class="btn btn-delete" onclick="deleteEvent('goals', ${g.id})">X</button>
+                </div>
+            `;
+            container.appendChild(div);
+        });
+    }
+
+    function editGoal(id, teamId, minute, pId, a1Id, a2Id) {
+        const div = document.getElementById(`goal-${id}`);
+        div.className = "edit-mode";
+        div.innerHTML = `
+            <div class="edit-col"><label>Minúta</label><input type="text" id="g-min-${id}" value="${minute}"></div>
+            <div class="edit-col"><label>Strelil</label><div id="sel-g-p-${id}">${buildPlayerSelect(teamId, pId, "Neznámy")}</div></div>
+            <div class="edit-col"><label>Asist. 1</label><div id="sel-g-a1-${id}">${buildPlayerSelect(teamId, a1Id, "Bez")}</div></div>
+            <div class="edit-col"><label>Asist. 2</label><div id="sel-g-a2-${id}">${buildPlayerSelect(teamId, a2Id, "Bez")}</div></div>
+            <div style="display:flex; align-items:flex-end; padding-bottom:3px;">
+                <button class="btn btn-save" onclick="saveGoal(${id})">Uložiť</button>
+                <button class="btn btn-cancel" onclick="loadMatchEvents()">Zrušiť</button>
+            </div>
+        `;
+    }
+
+    async function saveGoal(id) {
+        const min = document.getElementById(`g-min-${id}`).value;
+        const pId = document.querySelector(`#sel-g-p-${id} select`).value || null;
+        const a1Id = document.querySelector(`#sel-g-a1-${id} select`).value || null;
+        const a2Id = document.querySelector(`#sel-g-a2-${id} select`).value || null;
+
+        await fetch(`${API_BASE}/admin/goals/${id}/update`, {
+            method: "POST", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ minute: min, player_id: pId, assist1_id: a1Id, assist2_id: a2Id })
+        });
+        loadMatchEvents();
+    }
+
+    // ================= TRESTY =================
+    function renderPenalties(pens) {
+        const container = document.getElementById("penaltiesList");
+        container.innerHTML = "";
+        if(pens.length === 0) { container.innerHTML = "<div class='event-row'>Žiadne tresty.</div>"; return; }
+
+        pens.forEach(p => {
+            const teamName = p.team_id == currentMatch.home_id ? currentMatch.home_name : currentMatch.away_name;
+            const player = getPlayerName(p.team_id, p.player_id);
+            const minuteStr = p.minute ? p.minute + "'" : "-";
+
+            const div = document.createElement("div");
+            div.className = "event-row";
+            div.id = `pen-${p.id}`;
+            div.innerHTML = `
+                <div class="event-info">
+                    <strong style="color:#244b94;">${minuteStr}</strong> | <strong>${teamName}</strong> <br>
+                    Hráč: <strong>${player}</strong> | Trest: <strong style="color:#d90f23;">${p.type}</strong>
+                </div>
+                <div>
+                    <button class="btn btn-edit" onclick="editPenalty(${p.id}, ${p.team_id}, '${p.minute || ''}', ${p.player_id || null}, '${p.type}')">Upraviť</button>
+                    <button class="btn btn-delete" onclick="deleteEvent('penalties', ${p.id})">X</button>
+                </div>
+            `;
+            container.appendChild(div);
+        });
+    }
+
+    function editPenalty(id, teamId, minute, pId, type) {
+        const div = document.getElementById(`pen-${id}`);
+        div.className = "edit-mode";
+        
+        div.innerHTML = `
+            <div class="edit-col"><label>Minúta</label><input type="text" id="p-min-${id}" value="${minute}"></div>
+            <div class="edit-col"><label>Hráč</label><div id="sel-p-p-${id}">${buildPlayerSelect(teamId, pId, "Neznámy")}</div></div>
+            <div class="edit-col"><label>Typ / Dôvod trestu</label><input type="text" id="p-type-${id}" value="${type}"></div>
+            <div style="display:flex; align-items:flex-end; padding-bottom:3px;">
+                <button class="btn btn-save" onclick="savePenalty(${id})">Uložiť</button>
+                <button class="btn btn-cancel" onclick="loadMatchEvents()">Zrušiť</button>
+            </div>
+        `;
+    }
+
+    async function savePenalty(id) {
+        const min = document.getElementById(`p-min-${id}`).value;
+        const pId = document.querySelector(`#sel-p-p-${id} select`).value || null;
+        const type = document.getElementById(`p-type-${id}`).value;
+
+        await fetch(`${API_BASE}/admin/penalties/${id}/update`, {
+            method: "POST", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ minute: min, player_id: pId, type: type })
+        });
+        loadMatchEvents();
+    }
+
+    // ================= SPOLOČNÉ MAZANIE =================
+    async function deleteEvent(table, id) {
+        if(!confirm("Naozaj vymazať túto udalosť z databázy?")) return;
+        await fetch(`${API_BASE}/admin/${table}/${id}/delete`, { method: "DELETE" });
+        loadMatchEvents();
+    }
+</script>
+</body>
+</html>
