@@ -23,6 +23,30 @@
             font-weight: 800;
         }
 
+        /* TOGGLE BUTTONS FOR SEASON FASE */
+        .season-toggle {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 10px 0 40px 0;
+        }
+        .btn-toggle {
+            padding: 12px 30px;
+            font-size: 1.1em;
+            font-weight: bold;
+            border: 2px solid #244b94;
+            background: white;
+            color: #244b94;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .btn-toggle.active, .btn-toggle:hover {
+            background: #244b94;
+            color: white;
+            box-shadow: 0 4px 10px rgba(36, 75, 148, 0.3);
+        }
+
         /* SCROLLABLE BOX STYLE */
         .scroll-window {
             max-height: 450px;
@@ -71,10 +95,7 @@
             grid-template-columns: 1fr 1fr;
             gap: 30px;
             margin-top: 40px;
-        }
-
-        @media (max-width: 900px) {
-            .stats-grid { grid-template-columns: 1fr; }
+            transition: all 0.3s ease;
         }
 
         /* Tvoj pôvodný dizajn zoznamu zápasov */
@@ -89,9 +110,7 @@
         
         .h-date { width: 100px; text-align: left; font-size: 0.85em; color: #888; flex-shrink: 0; }
         .h-match-info { flex: 1; text-align: center; }
-        .h-btn {
-            width: 80px; text-align: right; font-size: 0.8em; color: #244b94; font-weight: bold; cursor: pointer;
-        }
+        .h-btn { width: 80px; text-align: right; font-size: 0.8em; color: #244b94; font-weight: bold; cursor: pointer; }
         .h-score { font-weight: bold; color: #d90f23; font-size: 1.1em; margin: 0 15px; }
         
         /* MODAL */
@@ -100,9 +119,12 @@
         .close-btn { float: right; font-size: 28px; cursor: pointer; color: #aaa; margin-top: -5px; }
         .close-btn:hover { color: #d90f23; }
         
-        /* Modálne tabuľky riadkov pre tresty a góly */
         .row-goal { background-color: #ffffff; }
         .row-penalty { background-color: #fff8e1; color: #e65100; }
+
+        @media (max-width: 900px) {
+            .stats-grid { grid-template-columns: 1fr !important; }
+        }
     </style>
 </head>
 <body>
@@ -129,13 +151,18 @@
 
     <div class="container">
 
-        <h2 class="section-title">Zápasová História</h2>
+        <div class="season-toggle">
+            <button id="btn-regular" class="btn-toggle active" onclick="setSeason('regular')">Základná časť</button>
+            <button id="btn-playoff" class="btn-toggle" onclick="setSeason('playoff')">🏆 Playoff</button>
+        </div>
+
+        <h2 class="section-title" id="historyTitle">Zápasová História (Základná časť)</h2>
         <div class="scroll-window" id="historyList">
             <p style="padding:15px; text-align:center;">Načítavam históriu...</p>
         </div>
 
-        <div class="stats-grid">
-            <div>
+        <div class="stats-grid" id="statsGrid">
+            <div id="teamStatsContainer">
                 <h2 class="section-title">Tabuľka Tímov</h2>
                 <div style="overflow-x: auto; border:1px solid #ddd; border-radius:8px;">
                     <table class="data-table">
@@ -158,7 +185,7 @@
                 </div>
             </div>
 
-            <div>
+            <div id="playerStatsContainer">
                 <h2 class="section-title">Hráčske Štatistiky</h2>
                 <div class="scroll-window">
                     <table class="data-table">
@@ -174,7 +201,7 @@
                             </tr>
                         </thead>
                         <tbody id="playerTable">
-                            <tr><td colspan="6">Načítavam...</td></tr>
+                            <tr><td colspan="7">Načítavam...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -191,28 +218,95 @@
         </div>
     </div>
 
-    <footer class="footer">
-        <div class="footer-container">
+<footer class="footer">
+        <div class="footer-container">      
             <div class="footer-col">
                 <h4 class="footer-title">SAILH</h4>
                 <div class="footer-line"></div>
-                <p class="footer-text">Slovenská asociácia in-line hokeja.</p>
+                <p class="footer-text">
+                    Slovenská asociácia in-line hokeja.<br>
+                    Oreganová 1178/1<br>
+                    900 46 Most pri Bratislave<br>
+                    Studené
+                </p>
+                <p class="footer-text" style="margin-top: 15px; font-size: 0.85em; opacity: 0.7;">
+                    Registračné číslo: VVS/1-900/90-72711
+                </p>
+            </div>
+            <div class="footer-col">
+                <h4 class="footer-title">Rýchle Odkazy</h4>
+                <div class="footer-line"></div>
+                <ul class="footer-links">
+                    <li><a href="https://ives.minv.sk/rmno/detail/13542098669735168654">O asociácii</a></li>
+                    <li><a href="privacy-policy.html">Ochrana údajov</a></li>
+                    <li><a href="donate.html">Darujte 2%</a></li>
+                </ul>
             </div>
             <div class="footer-col">
                 <h4 class="footer-title">Kontakt</h4>
                 <div class="footer-line"></div>
-                <div class="contact-item">📧 <a href="mailto:pejchalr@gmail.com">pejchalr@gmail.com</a></div>
+                <div class="contact-item">
+                    <span class="icon">📧</span> 
+                    <a href="mailto:pejchalr@gmail.com">pejchalr@gmail.com</a>
+                </div>
+                <div class="contact-item">
+                    <span class="icon">📞</span> 
+                    <span>+421 905 627 715</span>
+                </div>
+                <div class="contact-item" style="margin-top: 20px;">
+                    <strong style="color:#d90f23; margin-right:5px;">IČO:</strong> 57133671
+                </div>
+                <div class="contact-item">
+                    <strong style="color:#d90f23; margin-right:5px;">DIČ:</strong> 2122632930
+                </div>
             </div>
         </div>
-        <div class="footer-bottom">© 2026 SAILH</div>
+        <div class="footer-bottom">
+            © 2026 SAILH - Všetky práva vyhradené
+        </div>
     </footer>
 
     <script>
         const API_BASE = "https://Lucifer21sk.pythonanywhere.com";
+        let currentSeasonType = "regular"; // Predvolená je základná časť
+
+        // Prepínanie sezóny
+        function setSeason(type) {
+            currentSeasonType = type;
+            
+            // Tlačidlá styling
+            document.getElementById("btn-regular").classList.remove("active");
+            document.getElementById("btn-playoff").classList.remove("active");
+            document.getElementById(`btn-${type}`).classList.add("active");
+
+            // Elementy
+            const historyTitle = document.getElementById("historyTitle");
+            const teamContainer = document.getElementById("teamStatsContainer");
+            const grid = document.getElementById("statsGrid");
+
+            if (type === "playoff") {
+                historyTitle.innerHTML = "Zápasová História <span style='color:#d90f23;'>(🏆 Playoff)</span>";
+                teamContainer.style.display = "none"; // Skryjeme tabuľku tímov
+                grid.style.gridTemplateColumns = "1fr"; // Tabuľka hráčov zaberie celú šírku
+            } else {
+                historyTitle.innerHTML = "Zápasová História (Základná časť)";
+                teamContainer.style.display = "block"; // Ukážeme tabuľku tímov
+                grid.style.gridTemplateColumns = "1fr 1fr"; // Vrátime mriežku na polovicu
+                loadTeams(); // Načítame tímy len v základnej časti
+            }
+            
+            // Očistíme tabuľky pred načítaním
+            document.getElementById("historyList").innerHTML = "<p style='padding:15px; text-align:center;'>Načítavam...</p>";
+            document.getElementById("playerTable").innerHTML = "<tr><td colspan='7'>Načítavam...</td></tr>";
+
+            loadPlayers();
+            loadHistory();
+        }
 
         async function loadTeams() {
+            if(currentSeasonType === "playoff") return; // Poistka
             try {
-                const res = await fetch(`${API_BASE}/stats/teams`);
+                const res = await fetch(`${API_BASE}/stats/teams?season_type=${currentSeasonType}`);
                 const data = await res.json();
                 const tbody = document.getElementById("teamTable");
                 tbody.innerHTML = "";
@@ -234,16 +328,26 @@
 
         async function loadPlayers() {
             try {
-                const res = await fetch(`${API_BASE}/stats/players`);
+                const res = await fetch(`${API_BASE}/stats/players?season_type=${currentSeasonType}`);
                 const data = await res.json();
                 const tbody = document.getElementById("playerTable");
                 tbody.innerHTML = "";
+                
+                if (data.length === 0 || data[0].pts === 0 && data[0].gp === 0) {
+                    tbody.innerHTML = "<tr><td colspan='7'>Zatiaľ žiadne dáta pre túto fázu sezóny.</td></tr>";
+                    return;
+                }
+
                 data.forEach((p, i) => { 
+                    // Skryjeme hráčov, ktorí nemajú žiaden odohratý zápas v danej fáze
+                    if (p.gp === 0) return;
+
                     let rank = `${i + 1}.`;
                     if (i === 0) rank = "🥇";
                     if (i === 1) rank = "🥈";
                     if (i === 2) rank = "🥉";
 
+                    
                     tbody.innerHTML += `
                         <tr>
                             <td class="rank-col">${rank}</td>
@@ -258,16 +362,15 @@
             } catch (e) { console.error(e); }
         }
 
-        // Tvoja pôvodná kompaktná história zápasov
         async function loadHistory() {
             try {
-                const res = await fetch(`${API_BASE}/matches/history`);
+                const res = await fetch(`${API_BASE}/matches/history?season_type=${currentSeasonType}`);
                 const data = await res.json();
                 const list = document.getElementById("historyList");
                 list.innerHTML = "";
                 
                 if(data.length === 0) {
-                    list.innerHTML = "<p style='padding:15px; text-align:center;'>Zatiaľ žiadne odohrané zápasy.</p>";
+                    list.innerHTML = "<p style='padding:15px; text-align:center;'>Zatiaľ žiadne odohrané zápasy pre túto fázu.</p>";
                     return;
                 }
 
@@ -297,7 +400,6 @@
             } catch (e) { console.error(e); }
         }
 
-        // Aktualizovaný Modal - Teraz ťahá góly aj tresty do tabuľky
         async function openMatchDetails(matchId, titleText) {
             const modal = document.getElementById("detailsModal");
             const body = document.getElementById("modalBody");
@@ -307,7 +409,6 @@
             body.innerHTML = "<p style='text-align:center;'>Načítavam detaily...</p>";
 
             try {
-                // Tento fetch teraz zavolá nový python kód, ktorý vráti góly aj tresty
                 const res = await fetch(`${API_BASE}/matches/${matchId}/details`);
                 const events = await res.json();
                 
@@ -368,9 +469,8 @@
         function closeModal() { document.getElementById("detailsModal").style.display = "none"; }
         window.onclick = function(e) { if(e.target == document.getElementById("detailsModal")) closeModal(); }
 
-        loadTeams();
-        loadPlayers();
-        loadHistory();
+        // Inicializačné načítanie pri otvorení stránky (Základná časť)
+        setSeason("regular");
     </script>
 </body>
 </html>

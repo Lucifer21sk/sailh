@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAILH - Správca Súpisiek</title>
+    <style>
+        body { font-family: sans-serif; background: #f4f7f6; margin: 0; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        h2 { color: #244b94; margin-top: 0; border-bottom: 2px solid #eee; padding-bottom: 10px; text-transform: uppercase; }
+        
+        .form-row { display: flex; gap: 15px; margin-bottom: 20px; align-items: flex-end; }
+        .form-row > div { flex: 1; }
+        label { display: block; font-weight: bold; font-size: 0.9em; margin-bottom: 5px; color:#555;}
+        select, input[type="text"], input[type="number"] { width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc; font-size: 15px; box-sizing: border-box;}
+        
+        .btn { padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 0.9em; transition: 0.2s;}
+        .btn-add { background: #244b94; color: white; width: 100%; }
+        .btn-add:hover { background: #1a3a7a; }
+        .btn-edit { background: #f0ad4e; color: white; padding: 6px 12px;}
+        .btn-delete { background: #d90f23; color: white; padding: 6px 12px; margin-left: 5px;}
+        .btn-save { background: #28a745; color: white; padding: 6px 12px; }
+        .btn-cancel { background: #6c757d; color: white; padding: 6px 12px; margin-left: 5px;}
+
+        .roster-list { margin-top: 20px; }
+        .player-row { display: flex; align-items: center; justify-content: space-between; background: #fafafa; padding: 12px 15px; border-bottom: 1px solid #eee; border-radius: 4px; margin-bottom: 5px;}
+        .player-row:hover { background: #f0f4ff; }
+        .player-info { font-size: 1.1em; font-weight: bold; color: #333; }
+        .player-number { color: #d90f23; margin-right: 10px; font-weight: 900; display: inline-block; width: 30px;}
+        
+        .badge-loan { background:#f0ad4e; color:white; font-size:0.75em; padding:3px 8px; border-radius:4px; vertical-align:middle; margin-left:10px;}
+        
+        .edit-mode { background: #eef2f5; display: flex; gap: 10px; padding: 15px; border-radius: 6px; border-left: 4px solid #f0ad4e; margin-bottom: 5px; align-items: center;}
+        .edit-col { flex: 1; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>📋 Správa Súpisiek a Hosťovaní</h2>
+
+    <div class="form-row" style="background: #f9f9f9; padding: 15px; border-radius: 8px; border: 1px solid #ddd;">
+        <div style="flex: 2;">
+            <label>Vyberte tím pre zobrazenie súpisky:</label>
+            <select id="teamSelect" onchange="loadTeamRoster()">
+                <option value="">Načítavam tímy...</option>
+            </select>
+        </div>
+    </div>
+
+    <div id="rosterSection" style="display: none;">
+        
+        <div style="background: #eef2f5; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+            <h3 style="margin-top: 0; color: #244b94;">+ Pridať nového hráča do tímu</h3>
+            <div class="form-row" style="margin-bottom: 0;">
+                <div style="flex: 2;"><label>Meno a Priezvisko</label><input type="text" id="newPlayerName" placeholder="Napr. Ján Novák"></div>
+                <div style="flex: 1;"><label>Číslo dresu</label><input type="number" id="newPlayerNumber" placeholder="Napr. 88"></div>
+                <div style="flex: 1; display:flex; align-items:center; justify-content:center; gap:8px;">
+                    <input type="checkbox" id="newPlayerLoan" style="width:20px; height:20px; cursor:pointer;">
+                    <label style="margin:0; cursor:pointer;" for="newPlayerLoan">Hosťovanie</label>
+                </div>
+                <div style="flex: 1;"><button class="btn btn-add" onclick="addPlayer()">Pridať hráča</button></div>
+            </div>
+        </div>
+
+        <h3 style="border-bottom: 2px solid #eee; padding-bottom: 10px;">Aktuálna Súpiska</h3>
+        <div id="rosterList" class="roster-list">
+            <p>Načítavam hráčov...</p>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    const API_BASE = "https://Lucifer21sk.pythonanywhere.com";
+    let allTeams = [];
+    let currentTeamId = null;
+
+    document.addEventListener("DOMContentLoaded", loadTeams);
+
+    // 1. Načítanie všetkých tímov
+    async function loadTeams() {
+        try {
+            const res = await fetch(`${API_BASE}/teams`);
+            allTeams = await res.json();
+            
+            const select = document.getElementById("teamSelect");
+            select.innerHTML = "<option value=''>-- Vyberte Tím --</option>";
+            
+            allTeams.forEach(t => {
+                select.innerHTML += `<option value="${t.id}">${t.name}</option>`;
+            });
+        } catch (e) { console.error(e); }
+    }
+
+
+// 2. Načítanie súpisky vybraného tímu
+    async function loadTeamRoster() {
+        currentTeamId = document.getElementById("teamSelect").value;
+        if (!currentTeamId) {
+            document.getElementById("rosterSection").style.display = "none";
+            return;
+        }
+
+        document.getElementById("rosterSection").style.display = "block";
+        const list = document.getElementById("rosterList");
+        list.innerHTML = "<p>Načítavam...</p>";
+
+        try {
+            const res = await fetch(`${API_BASE}/players/${currentTeamId}`);
+            const players = await res.json();
+
+            list.innerHTML = "";
+            if (players.length === 0) {
+                list.innerHTML = "<p style='color:#666;'>Tento tím zatiaľ nemá žiadnych hráčov.</p>";
+                return;
+            }
+
+            players.forEach(p => {
+                // NOVÉ: Výrazný štítok so statusom hráča
+                const statusLabel = p.is_on_loan 
+                    ? `<span style="background:#d90f23; color:white; padding:4px 8px; border-radius:4px; font-size:0.75em; margin-left:15px; font-weight:bold; text-transform:uppercase;">🔄 Na hosťovaní</span>` 
+                    : `<span style="background:#eef2f5; color:#6c757d; padding:4px 8px; border-radius:4px; font-size:0.75em; margin-left:15px; font-weight:bold; text-transform:uppercase;">✅ Kmeňový hráč</span>`;
+                
+                const num = p.number ? p.number : "—";
+
+                list.innerHTML += `
+                    <div class="player-row" id="row-${p.id}">
+                        <div class="player-info" style="display:flex; align-items:center;">
+                            <span class="player-number">#${num}</span> 
+                            <span>${p.name}</span> 
+                            ${statusLabel}
+                        </div>
+                        <div>
+                            <button class="btn btn-edit" onclick="editMode(${p.id}, '${p.name}', '${p.number}', ${p.is_on_loan})">Upraviť</button>
+                            <button class="btn btn-delete" onclick="deletePlayer(${p.id})">🗑️</button>
+                        </div>
+                    </div>
+                `;
+            });
+        } catch (e) { console.error(e); }
+    }
+
+    // 3. Pridanie nového hráča
+    async function addPlayer() {
+        const name = document.getElementById("newPlayerName").value.trim();
+        const number = document.getElementById("newPlayerNumber").value.trim();
+        const isLoan = document.getElementById("newPlayerLoan").checked ? 1 : 0;
+
+        if (!name) { alert("Musíte zadať meno hráča."); return; }
+
+        try {
+            const res = await fetch(`${API_BASE}/admin/players/add`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name: name, number: number, team_id: currentTeamId, is_on_loan: isLoan })
+            });
+
+            if (res.ok) {
+                document.getElementById("newPlayerName").value = "";
+                document.getElementById("newPlayerNumber").value = "";
+                document.getElementById("newPlayerLoan").checked = false;
+                loadTeamRoster(); // Obnoví zoznam
+            } else { alert("Chyba pri pridávaní hráča."); }
+        } catch (e) { console.error(e); }
+    }
+
+    // 4. Úprava hráča (Presun / Zmena čísla)
+    function editMode(id, name, number, isLoan) {
+        const row = document.getElementById(`row-${id}`);
+        
+        // Vygenerujeme roletku všetkých tímov pre presun hráča
+        let teamSelectHtml = `<select id="edit-team-${id}">`;
+        allTeams.forEach(t => {
+            const selected = (t.id == currentTeamId) ? "selected" : "";
+            teamSelectHtml += `<option value="${t.id}" ${selected}>${t.name}</option>`;
+        });
+        teamSelectHtml += `</select>`;
+
+        const isChecked = isLoan ? "checked" : "";
+
+        row.className = "edit-mode";
+        row.innerHTML = `
+            <div class="edit-col">
+                <label>Číslo</label>
+                <input type="number" id="edit-num-${id}" value="${number === 'null' ? '' : number}">
+            </div>
+            <div class="edit-col" style="flex: 2;">
+                <label>Meno</label>
+                <input type="text" id="edit-name-${id}" value="${name}">
+            </div>
+            <div class="edit-col" style="flex: 2;">
+                <label>Aktuálny Tím</label>
+                ${teamSelectHtml}
+            </div>
+            <div class="edit-col" style="display:flex; flex-direction:column; align-items:center;">
+                <label>Hosťovanie</label>
+                <input type="checkbox" id="edit-loan-${id}" style="width:20px; height:20px; cursor:pointer;" ${isChecked}>
+            </div>
+            <div class="edit-col" style="display:flex; gap:5px; justify-content:flex-end;">
+                <button class="btn btn-save" onclick="savePlayer(${id})">Uložiť</button>
+                <button class="btn btn-cancel" onclick="loadTeamRoster()">Zrušiť</button>
+            </div>
+        `;
+    }
+
+    async function savePlayer(id) {
+        const name = document.getElementById(`edit-name-${id}`).value.trim();
+        const number = document.getElementById(`edit-num-${id}`).value.trim();
+        const teamId = document.getElementById(`edit-team-${id}`).value;
+        const isLoan = document.getElementById(`edit-loan-${id}`).checked ? 1 : 0;
+
+        try {
+            const res = await fetch(`${API_BASE}/admin/players/${id}/update`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name: name, number: number, team_id: teamId, is_on_loan: isLoan })
+            });
+
+            if (res.ok) { loadTeamRoster(); } 
+            else { alert("Chyba pri ukladaní."); }
+        } catch (e) { console.error(e); }
+    }
+
+    // 5. Zmazanie hráča
+    async function deletePlayer(id) {
+        if (!confirm("Naozaj chcete zmazať tohto hráča? POZOR: Ak už hral v nejakom zápase, neodporúča sa ho mazať.")) return;
+
+        try {
+            const res = await fetch(`${API_BASE}/admin/players/${id}/delete`, { method: "DELETE" });
+            if (res.ok) { loadTeamRoster(); } 
+            else { alert("Chyba pri mazaní."); }
+        } catch (e) { console.error(e); }
+    }
+</script>
+
+</body>
+</html>

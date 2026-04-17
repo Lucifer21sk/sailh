@@ -77,6 +77,28 @@
             min-width: 90px;
         }
 
+        /* ODZNAKY PRE FÁZU SEZÓNY */
+        .badge-playoff { 
+            background: #d90f23; 
+            color: white; 
+            padding: 3px 8px; 
+            border-radius: 4px; 
+            font-size: 0.75em; 
+            display: inline-block; 
+            margin-bottom: 8px; 
+            font-weight: bold;
+        }
+        .badge-regular { 
+            background: #244b94; 
+            color: white; 
+            padding: 3px 8px; 
+            border-radius: 4px; 
+            font-size: 0.75em; 
+            display: inline-block; 
+            margin-bottom: 8px; 
+            font-weight: bold;
+        }
+
         /* RESPONZÍVNY DIZAJN */
         @media (max-width: 1200px) {
             .dashboard-grid { grid-template-columns: 1fr; }
@@ -170,7 +192,7 @@
     <script>
         const API_BASE = "https://Lucifer21sk.pythonanywhere.com";
 
-        async function loadCalendar() {
+async function loadCalendar() {
             try {
                 const res = await fetch(`${API_BASE}/matches`);
                 const allMatches = await res.json();
@@ -190,9 +212,16 @@
                     let liveBtn = m.livestream_url && m.livestream_url.length > 5 
                         ? `<br><a href="${m.livestream_url}" target="_blank" class="live-btn-dynamic" style="margin-top:8px;">▶ LIVE</a>` : "";
 
+                    // Zistenie fázy sezóny a vytvorenie odznaku
+                    let seasonBadge = m.season_type === 'playoff' 
+                        ? '<div class="badge-playoff">🏆 Playoff</div>' 
+                        : '<div class="badge-regular">Základná časť</div>';
+
+                    // Vloženie odznaku (seasonBadge) hneď nad dátum
                     box.innerHTML += `
                         <div class="upcoming-item" style="background:#fff; border:1px solid #eee; padding:10px; border-radius:8px; text-align:center; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
                             <div style="margin-bottom:8px;">
+                                ${seasonBadge}
                                 <div class="calendar-date-highlight">${formattedDate}</div>
                                 <div style="font-size:0.95em; font-weight:bold; color:#555;">${m.time}</div>
                             </div>

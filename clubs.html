@@ -107,6 +107,18 @@
         }
         .roster-table tr:last-child td { border-bottom: none; }
         .num-col { width: 50px; text-align: center; font-weight: bold; color: #d90f23; }
+        
+        /* LOAN BADGE */
+        .badge-loan {
+            background: #f0ad4e;
+            color: white;
+            font-size: 0.75em;
+            padding: 2px 6px;
+            border-radius: 4px;
+            vertical-align: middle;
+            margin-left: 8px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -155,7 +167,7 @@
     </div>
 
 <footer class="footer">
-        <div class="footer-container">      
+        <div class="footer-container">       
             <div class="footer-col">
                 <h4 class="footer-title">SAILH</h4>
                 <div class="footer-line"></div>
@@ -265,10 +277,13 @@
                 `;
 
                 players.forEach(p => {
+                    const loanBadge = p.is_on_loan ? '<span class="badge-loan">🔄 Hosť</span>' : '';
+                    const playerNum = p.number ? p.number : '—'; // Fallback if no number is assigned
+                    
                     tableHtml += `
                         <tr>
-                            <td class="num-col">${p.number}</td>
-                            <td>${p.name}</td>
+                            <td class="num-col">${playerNum}</td>
+                            <td>${p.name}${loanBadge}</td>
                         </tr>
                     `;
                 });

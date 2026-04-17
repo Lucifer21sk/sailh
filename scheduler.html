@@ -24,8 +24,8 @@
             background: #fff; border: 1px solid #ddd; padding: 15px; margin-bottom: 10px; border-radius: 8px; 
             display: flex; flex-direction: column; gap: 10px;
         }
-        .match-header { font-weight: bold; color: #333; display: flex; justify-content: space-between; }
-        .match-teams { font-size: 1.1em; color: #244b94; }
+        .match-header { font-weight: bold; color: #333; display: flex; justify-content: space-between; align-items: center; }
+        .match-teams { font-size: 1.1em; color: #244b94; font-weight: bold; }
 
         .link-row { display: flex; gap: 10px; align-items: center; background: #f9f9f9; padding: 8px; border-radius: 5px; }
         .link-input { padding: 5px; font-size: 0.9em; flex-grow: 1; border: 1px solid #ccc; }
@@ -34,6 +34,9 @@
         .btn-del { background: #d90f23; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; margin-left: auto; }
         
         .msg { color: green; font-weight: bold; display: none; margin-top: 10px; }
+        
+        .badge-playoff { background: #d90f23; color: white; padding: 3px 8px; border-radius: 4px; font-size: 0.8em; }
+        .badge-regular { background: #244b94; color: white; padding: 3px 8px; border-radius: 4px; font-size: 0.8em; }
     </style>
 </head>
 <body>
@@ -60,6 +63,16 @@
             <div style="flex:1">
                 <label>Hostia:</label>
                 <select id="awayTeam"></select>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div style="flex:1">
+                <label>Fáza sezóny:</label>
+                <select id="seasonType">
+                    <option value="regular">Základná časť</option>
+                    <option value="playoff">🏆 Playoff</option>
+                </select>
             </div>
         </div>
 
@@ -109,10 +122,16 @@
                 upcoming.forEach(m => {
                     const existingLink = m.livestream_url ? m.livestream_url : "";
                     
+                    // Odznak pre zobrazenie typu zápasu
+                    const seasonBadge = m.season_type === 'playoff' 
+                        ? '<span class="badge-playoff">🏆 Playoff</span>' 
+                        : '<span class="badge-regular">Základná časť</span>';
+                    
                     container.innerHTML += `
                         <div class="match-card">
                             <div class="match-header">
                                 <span>📅 ${m.date} | 🕒 ${m.time}</span>
+                                ${seasonBadge}
                             </div>
                             <div class="match-teams">${m.home_team} vs ${m.away_team}</div>
                             
@@ -131,12 +150,13 @@
             } catch (err) { console.error(err); }
         }
 
-        // 3. Create New Match (LOCATION REMOVED)
+        // 3. Create New Match
         async function createMatch() {
             const homeId = document.getElementById("homeTeam").value;
             const awayId = document.getElementById("awayTeam").value;
             const dateVal = document.getElementById("matchDate").value;
             const timeVal = document.getElementById("matchTime").value;
+            const seasonTypeVal = document.getElementById("seasonType").value; // Načítanie hodnoty fázy
 
             if (homeId === awayId) { alert("Domáci a Hostia nemôžu byť ten istý tím!"); return; }
             if (!dateVal || !timeVal) { alert("Vyberte dátum a čas!"); return; }
@@ -149,8 +169,8 @@
                     away_team_id: awayId,
                     date: dateVal,
                     time: timeVal,
+                    season_type: seasonTypeVal, // Odosielame do Pythonu
                     livestream_url: "" 
-                    // NO LOCATION HERE
                 })
             });
 

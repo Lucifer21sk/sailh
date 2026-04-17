@@ -26,6 +26,10 @@
         #post-editor .btn-cancel { background: #6c757d; color: white; margin-left: 5px; }
         #post-editor .edit-mode { background: #eef2f5; display: flex; gap: 10px; padding: 15px; flex-wrap: wrap; border-radius: 6px; border-left: 4px solid #f0ad4e; margin-bottom: 5px;}
         #post-editor .edit-col { flex: 1; min-width: 140px; }
+        
+        /* Tlačidlo na zmazanie celého zápasu */
+        .btn-delete-match { background: #d90f23; color: white; padding: 10px 15px; font-size: 0.9em; width: 100%; margin-bottom: 20px;}
+        .btn-delete-match:hover { background: #b00b1b; }
     </style>
 </head>
 <body>
@@ -42,6 +46,11 @@
         </div>
 
         <div id="editorContent" style="display:none;">
+            
+            <div style="text-align: right; border-bottom: 1px solid #eee; padding-bottom: 20px; margin-bottom: 20px;">
+                <button class="btn btn-delete-match" onclick="deleteWholeMatch()">🗑️ Zmazať celý tento zápas z databázy</button>
+            </div>
+
             <div class="section-title">🏒 GÓLY</div>
             <div id="goalsList"></div>
 
@@ -130,6 +139,32 @@
         if (!playerId) return "Neznámy";
         const p = (rosters[teamId] || []).find(x => x.id == playerId);
         return p ? p.name : "Neznámy";
+    }
+
+    // ================= MAZANIE CELÉHO ZÁPASU =================
+    async function deleteWholeMatch() {
+        if (!currentMatch || !currentMatch.id) return;
+        
+        const confirmMsg = "UPOZORNENIE: Naozaj chcete natrvalo zmazať tento zápas z databázy?\n\nVymažú sa všetky góly, tresty, zostavy a zápas zmizne z tabuliek. Táto akcia sa NEDÁ vrátiť späť!";
+        if (!confirm(confirmMsg)) return;
+
+        try {
+            const res = await fetch(`${API_BASE}/matches/${currentMatch.id}/delete`, {
+                method: "DELETE"
+            });
+            
+            if (res.ok) {
+                alert("Zápas bol úspešne a natrvalo zmazaný.");
+                document.getElementById("editorContent").style.display = "none";
+                currentMatch = null;
+                loadMatches(); // Znovu načíta roletku so zápasmi
+            } else {
+                alert("Chyba: Zápas sa nepodarilo zmazať.");
+            }
+        } catch (e) {
+            console.error(e);
+            alert("Kritická chyba pri komunikácii so serverom.");
+        }
     }
 
     // ================= GÓLY =================
