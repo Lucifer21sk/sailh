@@ -326,7 +326,7 @@
             } catch (e) { console.error(e); }
         }
 
-        async function loadPlayers() {
+async function loadPlayers() {
             try {
                 const res = await fetch(`${API_BASE}/stats/players?season_type=${currentSeasonType}`);
                 const data = await res.json();
@@ -338,26 +338,34 @@
                     return;
                 }
 
-                data.forEach((p, i) => { 
-                    // Skryjeme hráčov, ktorí nemajú žiaden odohratý zápas v danej fáze
+                // NEW: We create a separate counter that doesn't care about the array index
+                let displayRank = 1; 
+
+                data.forEach((p) => { 
+                    // We skip players with 0 games
                     if (p.gp === 0) return;
 
-                    let rank = `${i + 1}.`;
-                    if (i === 0) rank = "🥇";
-                    if (i === 1) rank = "🥈";
-                    if (i === 2) rank = "🥉";
+                    // Calculate medal or number based on our new displayRank counter
+                    let rank = `${displayRank}.`;
+                    if (displayRank === 1) rank = "🥇";
+                    if (displayRank === 2) rank = "🥈";
+                    if (displayRank === 3) rank = "🥉";
 
-                    
+                    let loanBadge = p.is_on_loan ? ' <span title="Hráč je v tomto tíme na hosťovaní" style="background:#f0ad4e; color:white; font-size:0.75em; padding:2px 6px; border-radius:4px; vertical-align:middle; margin-left:6px; font-weight:bold;">🔄 Hosť</span>' : '';
+
                     tbody.innerHTML += `
                         <tr>
                             <td class="rank-col">${rank}</td>
-                            <td class="name-col">${p.name}</td>
+                            <td class="name-col">${p.name}${loanBadge}</td>
                             <td style="color:#666; font-size:0.9em; font-weight:bold;">${p.team}</td>
                             <td>${p.gp}</td>
                             <td>${p.g}</td>
                             <td>${p.a}</td>
                             <td class="points-col">${p.pts}</td>
                         </tr>`;
+                        
+                    // NEW: Increase the counter ONLY if the player was successfully drawn
+                    displayRank++; 
                 });
             } catch (e) { console.error(e); }
         }
