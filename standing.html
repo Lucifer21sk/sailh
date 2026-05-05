@@ -443,18 +443,35 @@ async function loadPlayers() {
 
                     if (e.type === "goal") {
                         let assists = "";
-                        if (e.a1) assists += e.a1;
-                        if (e.a2) assists += ", " + e.a2;
+                        let displayPlayer = e.player;
+
+                        // Zachytenie nájazdov (SN) a predĺženia (PP)
+                        if (e.minute === "GWG" || e.minute === "SO") {
+                            minuteStr = "SN"; // Zmení "GWG'" na slovenskú skratku "SN"
+                            displayPlayer = ""; // Skryje "Neznámy" hráča
+                        } else {
+                            // Ak to nie je nájazd, spracujeme asistencie
+                            if (e.a1) assists += e.a1;
+                            if (e.a2) assists += ", " + e.a2;
+                            
+                            // Ak čas zadáš priamo ako "PP", odstránime apostrof (aby nebolo PP')
+                            if (e.minute === "PP" || e.minute === "pp") {
+                                minuteStr = "PP";
+                            }
+                        }
                         
                         html += `<tr class="row-goal">
                             <td style="color:#888; font-weight:bold;">${minuteStr}</td>
                             <td title="Gól">🏒</td>
                             <td style="font-weight:bold; color:#d90f23;">${e.score}</td>
                             <td style="font-weight:bold;">${e.team}</td>
-                            <td style="font-weight:bold; color:#1565c0;">${e.player}</td>
+                            <td style="font-weight:bold; color:#1565c0;">${displayPlayer}</td>
                             <td style="color:#666;">${assists}</td>
                         </tr>`;
                     } else if (e.type === "penalty") {
+                        // Úprava pre tresty v predĺžení
+                        if (e.minute === "PP" || e.minute === "pp") minuteStr = "PP";
+
                         html += `<tr class="row-penalty">
                             <td style="font-weight:bold;">${minuteStr}</td>
                             <td title="Trest">⏱️</td>
