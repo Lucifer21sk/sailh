@@ -194,17 +194,32 @@
 
 async function loadCalendar() {
             try {
-                const res = await fetch(`${API_BASE}/matches`);
-                const allMatches = await res.json();
+                // Stiahneme VŠETKY zápasy a zároveň sa opýtame, ktoré sú LIVE
+                const [resAll, resLive] = await Promise.all([
+                    fetch(`${API_BASE}/matches`),
+                    fetch(`${API_BASE}/matches/public`)
+                ]);
+                
+                const allMatches = await resAll.json();
+                const liveData = await resLive.json();
+                
+                // Vytvoríme si zoznam ID-čok zápasov, ktoré aktuálne bežia
+                const liveMatchIds = liveData.filter(m => m.status === "live").map(m => m.id);
+
                 const box = document.getElementById("calendarList");
                 
-                const matches = allMatches.filter(m => !m.is_finished && m.status !== "live");
+                // FILTER: Zápas nesmie byť dokončený (!m.is_finished) 
+                // A ZÁROVEŇ jeho ID nesmie byť na zozname LIVE zápasov
+                const matches = allMatches.filter(m => !m.is_finished && !liveMatchIds.includes(m.id));
+                
                 if (matches.length === 0) {
                     box.innerHTML = "<p style='color:#666; font-size:0.9em; padding:10px; grid-column: 1 / -1;'>Žiadne naplánované zápasy.</p>";
                     return;
                 }
+                
                 matches.sort((a, b) => new Date(a.date + ' ' + a.time) - new Date(b.date + ' ' + b.time));
                 box.innerHTML = "";
+                
                 matches.forEach(m => {
                     const parts = m.date.split('-');
                     const formattedDate = `${parts[2]}.${parts[1]}.${parts[0]}`; 
