@@ -88,6 +88,10 @@
         .rank-col { font-weight: bold; color: #d90f23; width: 40px; }
         .name-col { text-align: left; font-weight: 600; }
         .points-col { font-weight: bold; background: #f4f8ff; color: #244b94; }
+        
+        /* Highlight pre gólové štatistiky */
+        .goals-col { color: #555; }
+        .diff-col { font-weight: bold; }
 
         /* GRID LAYOUT */
         .stats-grid {
@@ -98,7 +102,6 @@
             transition: all 0.3s ease;
         }
 
-        /* Tvoj pôvodný dizajn zoznamu zápasov */
         .history-item {
             display: flex;
             align-items: center; 
@@ -122,7 +125,7 @@
         .row-goal { background-color: #ffffff; }
         .row-penalty { background-color: #fff8e1; color: #e65100; }
 
-        @media (max-width: 900px) {
+        @media (max-width: 1000px) {
             .stats-grid { grid-template-columns: 1fr !important; }
         }
     </style>
@@ -175,11 +178,14 @@
                                 <th title="Výhry po predĺžení/nájazdoch (2 body)">Vp</th>
                                 <th title="Prehry po predĺžení/nájazdoch (1 bod)">Pp</th>
                                 <th title="Prehry (0 bodov)">P</th>
+                                <th title="Strelené góly">GS</th>
+                                <th title="Inkasované góly">GI</th>
+                                <th title="Rozdiel skóre">+/-</th>
                                 <th title="Body" class="points-col">B</th>
                             </tr>
                         </thead>
                         <tbody id="teamTable">
-                            <tr><td colspan="8">Načítavam...</td></tr>
+                            <tr><td colspan="11">Načítavam...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -219,7 +225,7 @@
     </div>
 
 <footer class="footer">
-        <div class="footer-container">      
+        <div class="footer-container">       
             <div class="footer-col">
                 <h4 class="footer-title">SAILH</h4>
                 <div class="footer-line"></div>
@@ -268,34 +274,30 @@
 
     <script>
         const API_BASE = "https://Lucifer21sk.pythonanywhere.com";
-        let currentSeasonType = "regular"; // Predvolená je základná časť
+        let currentSeasonType = "regular";
 
-        // Prepínanie sezóny
         function setSeason(type) {
             currentSeasonType = type;
             
-            // Tlačidlá styling
             document.getElementById("btn-regular").classList.remove("active");
             document.getElementById("btn-playoff").classList.remove("active");
             document.getElementById(`btn-${type}`).classList.add("active");
 
-            // Elementy
             const historyTitle = document.getElementById("historyTitle");
             const teamContainer = document.getElementById("teamStatsContainer");
             const grid = document.getElementById("statsGrid");
 
             if (type === "playoff") {
                 historyTitle.innerHTML = "Zápasová História <span style='color:#d90f23;'>(🏆 Playoff)</span>";
-                teamContainer.style.display = "none"; // Skryjeme tabuľku tímov
-                grid.style.gridTemplateColumns = "1fr"; // Tabuľka hráčov zaberie celú šírku
+                teamContainer.style.display = "none";
+                grid.style.gridTemplateColumns = "1fr"; 
             } else {
                 historyTitle.innerHTML = "Zápasová História (Základná časť)";
-                teamContainer.style.display = "block"; // Ukážeme tabuľku tímov
-                grid.style.gridTemplateColumns = "1fr 1fr"; // Vrátime mriežku na polovicu
-                loadTeams(); // Načítame tímy len v základnej časti
+                teamContainer.style.display = "block"; 
+                grid.style.gridTemplateColumns = "1fr 1fr"; 
+                loadTeams(); 
             }
             
-            // Očistíme tabuľky pred načítaním
             document.getElementById("historyList").innerHTML = "<p style='padding:15px; text-align:center;'>Načítavam...</p>";
             document.getElementById("playerTable").innerHTML = "<tr><td colspan='7'>Načítavam...</td></tr>";
 
@@ -304,13 +306,23 @@
         }
 
         async function loadTeams() {
-            if(currentSeasonType === "playoff") return; // Poistka
+            if(currentSeasonType === "playoff") return; 
             try {
                 const res = await fetch(`${API_BASE}/stats/teams?season_type=${currentSeasonType}`);
                 const data = await res.json();
                 const tbody = document.getElementById("teamTable");
                 tbody.innerHTML = "";
                 data.forEach((t, i) => {
+                    // Vypočítame a zafarbíme rozdiel
+                    let diffColor = "#666";
+                    let diffText = t.gd;
+                    if (t.gd > 0) {
+                        diffColor = "#28a745"; // Zelená pre plus
+                        diffText = "+" + t.gd;
+                    } else if (t.gd < 0) {
+                        diffColor = "#d90f23"; // Červená pre mínus
+                    }
+
                     tbody.innerHTML += `
                         <tr>
                             <td class="rank-col">${i + 1}.</td>
@@ -320,13 +332,16 @@
                             <td>${t.ow}</td>
                             <td>${t.ol}</td>
                             <td>${t.l}</td>
+                            <td class="goals-col">${t.gs}</td>
+                            <td class="goals-col">${t.ga}</td>
+                            <td class="diff-col" style="color: ${diffColor};">${diffText}</td>
                             <td class="points-col">${t.pts}</td>
                         </tr>`;
                 });
             } catch (e) { console.error(e); }
         }
 
-async function loadPlayers() {
+        async function loadPlayers() {
             try {
                 const res = await fetch(`${API_BASE}/stats/players?season_type=${currentSeasonType}`);
                 const data = await res.json();
@@ -338,14 +353,11 @@ async function loadPlayers() {
                     return;
                 }
 
-                // NEW: We create a separate counter that doesn't care about the array index
                 let displayRank = 1; 
 
                 data.forEach((p) => { 
-                    // We skip players with 0 games
                     if (p.gp === 0) return;
 
-                    // Calculate medal or number based on our new displayRank counter
                     let rank = `${displayRank}.`;
                     if (displayRank === 1) rank = "🥇";
                     if (displayRank === 2) rank = "🥈";
@@ -364,7 +376,6 @@ async function loadPlayers() {
                             <td class="points-col">${p.pts}</td>
                         </tr>`;
                         
-                    // NEW: Increase the counter ONLY if the player was successfully drawn
                     displayRank++; 
                 });
             } catch (e) { console.error(e); }
@@ -445,16 +456,13 @@ async function loadPlayers() {
                         let assists = "";
                         let displayPlayer = e.player;
 
-                        // Zachytenie nájazdov (SN) a predĺženia (PP)
                         if (e.minute === "GWG" || e.minute === "SO") {
-                            minuteStr = "SN"; // Zmení "GWG'" na slovenskú skratku "SN"
-                            displayPlayer = ""; // Skryje "Neznámy" hráča
+                            minuteStr = "SN";
+                            displayPlayer = "";
                         } else {
-                            // Ak to nie je nájazd, spracujeme asistencie
                             if (e.a1) assists += e.a1;
                             if (e.a2) assists += ", " + e.a2;
                             
-                            // Ak čas zadáš priamo ako "PP", odstránime apostrof (aby nebolo PP')
                             if (e.minute === "PP" || e.minute === "pp") {
                                 minuteStr = "PP";
                             }
@@ -469,7 +477,6 @@ async function loadPlayers() {
                             <td style="color:#666;">${assists}</td>
                         </tr>`;
                     } else if (e.type === "penalty") {
-                        // Úprava pre tresty v predĺžení
                         if (e.minute === "PP" || e.minute === "pp") minuteStr = "PP";
 
                         html += `<tr class="row-penalty">
@@ -494,7 +501,6 @@ async function loadPlayers() {
         function closeModal() { document.getElementById("detailsModal").style.display = "none"; }
         window.onclick = function(e) { if(e.target == document.getElementById("detailsModal")) closeModal(); }
 
-        // Inicializačné načítanie pri otvorení stránky (Základná časť)
         setSeason("regular");
     </script>
 </body>
