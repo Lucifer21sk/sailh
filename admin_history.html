@@ -18,6 +18,12 @@
         .action-bar { margin-bottom: 20px; padding-bottom: 20px; border-bottom: 2px solid #eee; display: flex; justify-content: space-between; align-items: center; }
         .btn-print { background: #d90f23; color: white; border: none; padding: 10px 20px; font-weight: bold; border-radius: 4px; cursor: pointer; font-size: 1em; }
         .btn-print:hover { background: #b00b1b; }
+        
+        /* Tlačidlo a panel pre Úpravu */
+        .btn-edit { background: #ffc107; color: #000; border: none; padding: 10px 20px; font-weight: bold; border-radius: 4px; cursor: pointer; font-size: 1em; margin-right: 10px; }
+        .btn-edit:hover { background: #e0a800; }
+        .edit-panel { background: #f9f9f9; padding: 20px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 20px; display: none; }
+        .edit-panel input, .edit-panel textarea { width: 100%; padding: 8px; margin-top: 5px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-family: Arial, sans-serif; }
 
         /* REPORT LAYOUT (To, čo sa reálne vytlačí/uloží) */
         .report-container { max-width: 800px; margin: 0 auto; color: #000; }
@@ -45,7 +51,7 @@
 
         /* ŠTÝLY PRE TLAČ / ULOŽENIE PDF */
         @media print {
-            .sidebar, .action-bar { display: none !important; }
+            .sidebar, .action-bar, .edit-panel { display: none !important; }
             .layout { display: block; height: auto; }
             .main-content { padding: 0; overflow: visible; background: none; }
             body { background: white; color: black; font-size: 12pt; }
@@ -64,8 +70,29 @@
 
         <div class="main-content">
             <div class="action-bar no-print" id="actionBar" style="display: none;">
-                <div><h3 style="margin:0;">Zápis pripravený</h3><small style="color:#666;">Tento dokument môžete uložiť ako PDF.</small></div>
-                <button class="btn-print" onclick="window.print()">🖨️ Uložiť ako PDF</button>
+                <div><h3 style="margin:0;">Zápis pripravený</h3><small style="color:#666;">Tento dokument môžete upraviť alebo uložiť ako PDF.</small></div>
+                <div>
+                    <button class="btn-edit" onclick="openEditPanel()">✏️ Upraviť</button>
+                    <button class="btn-print" onclick="window.print()">🖨️ Uložiť ako PDF</button>
+                </div>
+            </div>
+
+            <div class="edit-panel no-print" id="editPanel">
+                <h3 style="margin-top:0; color:#244b94;">Úprava detailov zápisu</h3>
+                
+                <label style="font-weight:bold;">Rozhodca:</label>
+                <input type="text" id="editReferee">
+                
+                <label style="font-weight:bold;">Zdravotník / Lekár:</label>
+                <input type="text" id="editDoctor">
+                
+                <label style="font-weight:bold;">Poznámky k zápasu:</label>
+                <textarea id="editNotes" rows="4"></textarea>
+                
+                <div style="margin-top: 10px;">
+                    <button onclick="saveMatchReport()" style="background:#28a745; color:white; padding:10px 20px; border:none; border-radius:4px; font-weight:bold; cursor:pointer;">💾 Uložiť zmeny</button>
+                    <button onclick="closeEditPanel()" style="background:#ccc; color:#333; padding:10px 20px; border:none; border-radius:4px; font-weight:bold; cursor:pointer; margin-left:10px;">Zrušiť</button>
+                </div>
             </div>
 
             <div class="report-container" id="reportArea">
@@ -76,6 +103,9 @@
 
     <script>
         const API_BASE = "https://Lucifer21sk.pythonanywhere.com";
+        
+        let currentMatchId = null;
+        let currentReportData = { referee: "", doctor: "", notes: "" };
 
         async function loadFinishedMatches() {
             try {
@@ -103,7 +133,11 @@
         }
 
         async function generateReport(matchId) {
+            currentMatchId = matchId;
+            closeEditPanel(); // Zavrie panel úprav, ak bol otvorený z predchádzajúceho zápasu
+            
             document.getElementById("reportArea").innerHTML = "<p style='text-align:center;'>Generujem zápis...</p>";
+            document.getElementById("actionBar").style.display = "none";
             
             try {
                 const res = await fetch(`${API_BASE}/matches/${matchId}/export`);
@@ -122,6 +156,11 @@
 
                 const m = data.match;
                 const rep = data.report;
+                
+                // Uložíme si aktuálne dáta pre prípadnú úpravu
+                currentReportData.referee = rep.referee || "";
+                currentReportData.doctor = rep.doctor || "";
+                currentReportData.notes = rep.notes || "";
                 
                 let dateObj = new Date(m.started_at);
                 let dateStr = isNaN(dateObj) ? m.started_at : dateObj.toLocaleDateString('sk-SK') + " " + dateObj.toLocaleTimeString('sk-SK', {hour: '2-digit', minute:'2-digit'});
@@ -232,6 +271,49 @@
             } catch (err) { 
                 console.error(err); 
                 document.getElementById("reportArea").innerHTML = "<p style='color:red; text-align:center;'>Kritická chyba pri spracovaní dát zo servera.</p>";
+            }
+        }
+
+        // --- FUNKCIE PRE ÚPRAVU REPORTU ---
+        
+        function openEditPanel() {
+            // Vyplní aktuálne dáta do inputov a zobrazí panel
+            document.getElementById("editReferee").value = currentReportData.referee;
+            document.getElementById("editDoctor").value = currentReportData.doctor;
+            document.getElementById("editNotes").value = currentReportData.notes;
+            document.getElementById("editPanel").style.display = "block";
+        }
+
+        function closeEditPanel() {
+            document.getElementById("editPanel").style.display = "none";
+        }
+
+        async function saveMatchReport() {
+            if (!currentMatchId) return;
+            
+            const refVal = document.getElementById("editReferee").value;
+            const docVal = document.getElementById("editDoctor").value;
+            const notVal = document.getElementById("editNotes").value;
+
+            try {
+                const res = await fetch(`${API_BASE}/admin/matches/${currentMatchId}/report/update`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ referee: refVal, doctor: docVal, notes: notVal })
+                });
+                
+                const data = await res.json();
+                
+                if (data.status === "ok") {
+                    alert("Údaje boli úspešne uložené!");
+                    closeEditPanel();
+                    generateReport(currentMatchId); // Znovu načíta zápas, aby sa ukázali nové údaje
+                } else {
+                    alert("Vyskytla sa chyba pri ukladaní.");
+                }
+            } catch(e) {
+                console.error(e);
+                alert("Chyba pripojenia k serveru.");
             }
         }
 
