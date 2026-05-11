@@ -7,7 +7,6 @@
     <style>
         body { font-family: Arial, sans-serif; background: #f4f7f6; margin: 0; padding: 0; color: #333; }
         
-        /* WEB LAYOUT (Skryté pri tlači) */
         .layout { display: flex; height: 100vh; }
         .sidebar { width: 300px; background: #244b94; color: white; overflow-y: auto; padding: 20px; flex-shrink: 0; }
         .sidebar h2 { margin-top: 0; font-size: 1.2em; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 10px; }
@@ -19,37 +18,29 @@
         .btn-print { background: #d90f23; color: white; border: none; padding: 10px 20px; font-weight: bold; border-radius: 4px; cursor: pointer; font-size: 1em; }
         .btn-print:hover { background: #b00b1b; }
         
-        /* Tlačidlo a panel pre Úpravu */
         .btn-edit { background: #ffc107; color: #000; border: none; padding: 10px 20px; font-weight: bold; border-radius: 4px; cursor: pointer; font-size: 1em; margin-right: 10px; }
         .btn-edit:hover { background: #e0a800; }
+        
+        /* PANEL ÚPRAV */
         .edit-panel { background: #f9f9f9; padding: 20px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 20px; display: none; }
-        .edit-panel input, .edit-panel textarea { width: 100%; padding: 8px; margin-top: 5px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-family: Arial, sans-serif; }
+        .edit-panel input[type="text"], .edit-panel textarea { width: 100%; padding: 8px; margin-top: 5px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-family: Arial, sans-serif; }
 
-        /* REPORT LAYOUT (To, čo sa reálne vytlačí/uloží) */
         .report-container { max-width: 800px; margin: 0 auto; color: #000; }
         .r-header { text-align: center; margin-bottom: 30px; }
         .r-title { font-size: 1.5em; font-weight: bold; text-transform: uppercase; margin-bottom: 5px; }
         .r-meta { font-size: 0.9em; color: #555; }
-        
         .r-score-box { text-align: center; margin-bottom: 30px; font-size: 1.2em; }
         .r-score { font-size: 2em; font-weight: bold; margin: 0 15px; }
-
         .r-section { margin-bottom: 25px; }
         .r-section-title { font-weight: bold; font-size: 1.1em; border-bottom: 1px solid #000; padding-bottom: 5px; margin-bottom: 10px; text-transform: uppercase; }
-
         .r-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        
         table.simple-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 0.9em; }
         table.simple-table th, table.simple-table td { border: 1px solid #888; padding: 6px; text-align: left; }
         table.simple-table th { background: #f9f9f9; }
-
         .r-notes { border: 1px solid #888; padding: 10px; min-height: 50px; white-space: pre-wrap; font-size: 0.9em; }
-
-        /* MIESTO NA PODPIS */
         .signature-box { margin-top: 80px; display: flex; justify-content: flex-end; }
         .signature-line { width: 250px; text-align: center; border-top: 1px solid #000; padding-top: 8px; font-size: 0.9em; }
 
-        /* ŠTÝLY PRE TLAČ / ULOŽENIE PDF */
         @media print {
             .sidebar, .action-bar, .edit-panel { display: none !important; }
             .layout { display: block; height: auto; }
@@ -78,7 +69,7 @@
             </div>
 
             <div class="edit-panel no-print" id="editPanel">
-                <h3 style="margin-top:0; color:#244b94;">Úprava detailov zápisu</h3>
+                <h3 style="margin-top:0; color:#244b94;">Úprava delegovaných osôb a poznámok</h3>
                 
                 <label style="font-weight:bold;">Rozhodca:</label>
                 <input type="text" id="editReferee">
@@ -89,10 +80,35 @@
                 <label style="font-weight:bold;">Poznámky k zápasu:</label>
                 <textarea id="editNotes" rows="4"></textarea>
                 
-                <div style="margin-top: 10px;">
-                    <button onclick="saveMatchReport()" style="background:#28a745; color:white; padding:10px 20px; border:none; border-radius:4px; font-weight:bold; cursor:pointer;">💾 Uložiť zmeny</button>
-                    <button onclick="closeEditPanel()" style="background:#ccc; color:#333; padding:10px 20px; border:none; border-radius:4px; font-weight:bold; cursor:pointer; margin-left:10px;">Zrušiť</button>
+                <div style="margin-top: 10px; margin-bottom: 30px;">
+                    <button onclick="saveMatchReport()" style="background:#28a745; color:white; padding:10px 20px; border:none; border-radius:4px; font-weight:bold; cursor:pointer;">💾 Uložiť textové zmeny</button>
+                    <button onclick="closeEditPanel()" style="background:#ccc; color:#333; padding:10px 20px; border:none; border-radius:4px; font-weight:bold; cursor:pointer; margin-left:10px;">Zavrieť panel</button>
                 </div>
+
+                <hr style="border: 0; border-top: 1px solid #ccc; margin: 20px 0;">
+                <h3 style="margin-top:0; color:#244b94;">Doplnenie hráča na súpisku</h3>
+                <p style="font-size:0.85em; color:#666; margin-top:-10px;">Ak ste pred zápasom zabudli zakliknúť hráča v dochádzke, môžete ho doplniť tu.</p>
+                
+                <div style="display:flex; gap:20px; flex-wrap:wrap;">
+                    <div style="flex:1; min-width:200px; background:#fff; padding:15px; border-radius:6px; border:1px solid #ddd;">
+                        <strong style="color:#d90f23;" id="editHomeTitle">Domáci tím</strong><br>
+                        <select id="homePlayerSelect" style="width:100%; margin-top:10px; padding:8px;" onchange="autoFillNumber('home')"></select>
+                        <div style="display:flex; gap:10px; margin-top:10px;">
+                            <input type="number" id="homePlayerNumber" placeholder="Číslo dresu" style="width:80px; padding:8px; border:1px solid #ccc; border-radius:4px;">
+                            <button type="button" onclick="addPlayerToRoster('home')" style="background:#244b94; color:white; padding:8px 15px; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">➕ Pridať</button>
+                        </div>
+                    </div>
+
+                    <div style="flex:1; min-width:200px; background:#fff; padding:15px; border-radius:6px; border:1px solid #ddd;">
+                        <strong style="color:#244b94;" id="editAwayTitle">Hosťujúci tím</strong><br>
+                        <select id="awayPlayerSelect" style="width:100%; margin-top:10px; padding:8px;" onchange="autoFillNumber('away')"></select>
+                        <div style="display:flex; gap:10px; margin-top:10px;">
+                            <input type="number" id="awayPlayerNumber" placeholder="Číslo dresu" style="width:80px; padding:8px; border:1px solid #ccc; border-radius:4px;">
+                            <button type="button" onclick="addPlayerToRoster('away')" style="background:#244b94; color:white; padding:8px 15px; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">➕ Pridať</button>
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
             <div class="report-container" id="reportArea">
@@ -105,14 +121,15 @@
         const API_BASE = "https://Lucifer21sk.pythonanywhere.com";
         
         let currentMatchId = null;
-        let currentReportData = { referee: "", doctor: "", notes: "" };
+        let currentMatchTitle = "Zápis o stretnutí";
+        let currentReportData = { referee: "", doctor: "", notes: "", home_team_id: null, away_team_id: null };
 
-       function printReport() {
-            const originalTitle = document.title; // Uložíme si pôvodný názov stránky
-            document.title = currentMatchTitle;   // Nastavíme mená tímov pre PDF
-            window.print();                       // Otvoríme okno na tlač
-            document.title = originalTitle;       // Vrátime pôvodný názov stránky
-        } 
+        function printReport() {
+            const originalTitle = document.title; 
+            document.title = currentMatchTitle;   
+            window.print();                       
+            document.title = originalTitle;       
+        }
 
         async function loadFinishedMatches() {
             try {
@@ -129,8 +146,9 @@
                 }
 
                 finished.forEach(m => {
+                    // Posielame si aj ID tímov priamo do funkcie!
                     sidebar.innerHTML += `
-                        <div class="match-btn" onclick="generateReport(${m.id})">
+                        <div class="match-btn" onclick="generateReport(${m.id}, ${m.home_team_id}, ${m.away_team_id})">
                             <div style="font-weight:bold;">${m.home_team} vs ${m.away_team}</div>
                             <div style="font-size:0.8em; opacity:0.8;">${m.date} | ${m.home_score}:${m.away_score}</div>
                         </div>
@@ -139,10 +157,12 @@
             } catch (err) { console.error(err); }
         }
 
-        async function generateReport(matchId) {
+        async function generateReport(matchId, homeTeamId, awayTeamId) {
             currentMatchId = matchId;
-            closeEditPanel(); // Zavrie panel úprav, ak bol otvorený z predchádzajúceho zápasu
+            if (homeTeamId) currentReportData.home_team_id = homeTeamId;
+            if (awayTeamId) currentReportData.away_team_id = awayTeamId;
             
+            closeEditPanel(); 
             document.getElementById("reportArea").innerHTML = "<p style='text-align:center;'>Generujem zápis...</p>";
             document.getElementById("actionBar").style.display = "none";
             
@@ -163,10 +183,11 @@
 
                 const m = data.match;
                 const rep = data.report;
-
-                currentMatchTitle = `${m.home_team} - ${m.away_team}`;
                 
-                // Uložíme si aktuálne dáta pre prípadnú úpravu
+                currentMatchTitle = `${m.home_team} - ${m.away_team}`;
+                document.getElementById("editHomeTitle").innerText = m.home_team;
+                document.getElementById("editAwayTitle").innerText = m.away_team;
+                
                 currentReportData.referee = rep.referee || "";
                 currentReportData.doctor = rep.doctor || "";
                 currentReportData.notes = rep.notes || "";
@@ -283,13 +304,17 @@
             }
         }
 
-        // --- FUNKCIE PRE ÚPRAVU REPORTU ---
+        // --- FUNKCIE PRE ÚPRAVU ZÁPISU A SÚPISKY ---
         
         function openEditPanel() {
-            // Vyplní aktuálne dáta do inputov a zobrazí panel
             document.getElementById("editReferee").value = currentReportData.referee;
             document.getElementById("editDoctor").value = currentReportData.doctor;
             document.getElementById("editNotes").value = currentReportData.notes;
+            
+            // Načítanie hráčov do selectov
+            if(currentReportData.home_team_id) loadTeamPlayersForSelect(currentReportData.home_team_id, "homePlayerSelect");
+            if(currentReportData.away_team_id) loadTeamPlayersForSelect(currentReportData.away_team_id, "awayPlayerSelect");
+            
             document.getElementById("editPanel").style.display = "block";
         }
 
@@ -299,7 +324,6 @@
 
         async function saveMatchReport() {
             if (!currentMatchId) return;
-            
             const refVal = document.getElementById("editReferee").value;
             const docVal = document.getElementById("editDoctor").value;
             const notVal = document.getElementById("editNotes").value;
@@ -311,19 +335,68 @@
                     body: JSON.stringify({ referee: refVal, doctor: docVal, notes: notVal })
                 });
                 
-                const data = await res.json();
-                
-                if (data.status === "ok") {
+                if (res.ok) {
                     alert("Údaje boli úspešne uložené!");
-                    closeEditPanel();
-                    generateReport(currentMatchId); // Znovu načíta zápas, aby sa ukázali nové údaje
-                } else {
-                    alert("Vyskytla sa chyba pri ukladaní.");
+                    generateReport(currentMatchId); // Znovu načíta zápas s novými údajmi
                 }
-            } catch(e) {
-                console.error(e);
-                alert("Chyba pripojenia k serveru.");
+            } catch(e) { console.error(e); }
+        }
+
+        // --- SÚPISKA LOGIKA ---
+        
+        async function loadTeamPlayersForSelect(teamId, selectId) {
+            try {
+                const res = await fetch(`${API_BASE}/players/${teamId}`);
+                const players = await res.json();
+                const sel = document.getElementById(selectId);
+                
+                sel.innerHTML = "<option value=''>-- Vyberte hráča --</option>";
+                players.forEach(p => {
+                    sel.innerHTML += `<option value="${p.id}" data-number="${p.number}">${p.name}</option>`;
+                });
+            } catch (e) { console.error("Chyba pri načítaní hráčov pre select", e); }
+        }
+
+        function autoFillNumber(side) {
+            const sel = document.getElementById(side + "PlayerSelect");
+            const opt = sel.options[sel.selectedIndex];
+            if (opt && opt.value !== "") {
+                document.getElementById(side + "PlayerNumber").value = opt.getAttribute("data-number");
+            } else {
+                document.getElementById(side + "PlayerNumber").value = "";
             }
+        }
+
+        async function addPlayerToRoster(side) {
+            const teamId = side === 'home' ? currentReportData.home_team_id : currentReportData.away_team_id;
+            const playerId = document.getElementById(side + "PlayerSelect").value;
+            const playerNum = document.getElementById(side + "PlayerNumber").value;
+
+            if (!playerId || !playerNum) {
+                alert("Prosím, vyberte hráča zo zoznamu a skontrolujte jeho číslo.");
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE}/admin/matches/${currentMatchId}/roster/add`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        team_id: teamId,
+                        player_id: parseInt(playerId),
+                        number: parseInt(playerNum)
+                    })
+                });
+
+                if (res.ok) {
+                    // Úspešne pridané, vyresetujeme políčka a načítame nový report
+                    document.getElementById(side + "PlayerSelect").value = "";
+                    document.getElementById(side + "PlayerNumber").value = "";
+                    generateReport(currentMatchId);
+                } else {
+                    alert("Chyba pri pridávaní hráča.");
+                }
+            } catch (e) { console.error(e); }
         }
 
         loadFinishedMatches();
