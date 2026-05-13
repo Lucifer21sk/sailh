@@ -159,6 +159,11 @@ body {
     box-shadow: 0 4px 0 #15326b;
 }
 
+.btn-youtube {
+    background-color: #ff0000; /* Red */
+    box-shadow: 0 4px 0 #910101;
+}
+
 .btn-live {
     background-color: #ff0000; /* Red */
     box-shadow: 0 4px 0 #cc0000;
