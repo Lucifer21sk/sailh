@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin - Správa Galérie</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f7f6; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        h1 { color: #244b94; border-bottom: 2px solid #d90f23; padding-bottom: 10px; }
+        .upload-box { background: #f9f9f9; padding: 20px; border: 2px dashed #ccc; border-radius: 8px; text-align: center; margin-bottom: 30px; }
+        .upload-btn { background: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        
+        .admin-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; }
+        .admin-photo { position: relative; border-radius: 6px; overflow: hidden; background: #eee; }
+        .admin-photo img { width: 100%; height: 120px; object-fit: cover; display: block; }
+        .delete-btn { position: absolute; top: 5px; right: 5px; background: red; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Správa fotogalérie</h1>
+
+    <div class="upload-box">
+        <h3>Nová fotka</h3>
+        <input type="file" id="fileInput" accept="image/jpeg, image/png, image/webp">
+        <br>
+        <button class="upload-btn" onclick="uploadPhoto()">⬆️ Nahrať na server</button>
+        <p id="uploadStatus" style="color: #244b94; font-weight: bold;"></p>
+    </div>
+
+    <h3>Aktuálne fotky v galérii:</h3>
+    <div class="admin-grid" id="adminGrid">
+        <p>Načítavam...</p>
+    </div>
+</div>
+
+<script>
+    const API_BASE = "https://Lucifer21sk.pythonanywhere.com"; // Zmeň, ak máš inú adresu
+
+    // 1. Nahrávanie fotky
+    async function uploadPhoto() {
+        const fileInput = document.getElementById("fileInput");
+        if (fileInput.files.length === 0) { alert("Vyber prosím fotku!"); return; }
+
+        const file = fileInput.files[0];
+        const formData = new FormData();
+        formData.append("file", file);
+
+        document.getElementById("uploadStatus").innerText = "Nahrávam fotku, počkajte prosím...";
+
+        try {
+            const res = await fetch(`${API_BASE}/admin/gallery/upload`, {
+                method: "POST",
+                body: formData
+            });
+            const data = await res.json();
+
+            if (data.status === "ok") {
+                document.getElementById("uploadStatus").innerText = "Úspešne nahraté!";
+                fileInput.value = ""; // Vyčistí input
+                loadAdminGallery(); // Obnoví zoznam fotiek
+            } else {
+                alert("Chyba: " + data.error);
+            }
+        } catch (e) { console.error(e); alert("Chyba siete."); }
+    }
+
+    // 2. Načítanie fotiek do admina
+    async function loadAdminGallery() {
+        const grid = document.getElementById("adminGrid");
+        try {
+            const res = await fetch(`${API_BASE}/gallery/images`);
+            const images = await res.json();
+            
+            grid.innerHTML = "";
+            if (images.length === 0) { grid.innerHTML = "<p>Galéria je prázdna.</p>"; return; }
+
+            images.forEach(img => {
+                grid.innerHTML += `
+                    <div class="admin-photo">
+                        <img src="photos/${img.filename}" alt="Foto">
+                        <button class="delete-btn" onclick="deletePhoto(${img.id})">X</button>
+                    </div>
+                `;
+            });
+        } catch (e) { console.error(e); }
+    }
+
+    // 3. Mazanie fotiek
+    async function deletePhoto(id) {
+        if (!confirm("Naozaj chceš zmazať túto fotku?")) return;
+        
+        try {
+            await fetch(`${API_BASE}/admin/gallery/${id}/delete`, { method: "POST" });
+            loadAdminGallery(); // Obnoví zoznam
+        } catch (e) { console.error(e); }
+    }
+
+    loadAdminGallery();
+</script>
+
+</body>
+</html>

@@ -224,24 +224,8 @@
 
         <h2 style="color:#244b94; border-bottom:3px solid #d90f23; display:inline-block; padding-bottom:5px; margin-bottom:20px;">Fotogaléria zo zápasov</h2>
         
-        <div class="photo-grid">
-            
-            <div class="photo-item" onclick="openLightbox('photos/inttw63.jpg')">
-                <img src="photos/inttw63.jpg" alt="Útok a obrana" loading="lazy">
-            </div>
-
-            <div class="photo-item" onclick="openLightbox('photos/inttw5.jpg')">
-                <img src="photos/inttw5.jpg" alt="Tímová porada" loading="lazy">
-            </div>
-
-            <div class="photo-item" onclick="openLightbox('photos/inttw22.jpg')">
-                <img src="photos/inttw22.jpg" alt="Súboj pri mantineli" loading="lazy">
-            </div>
-
-            <div class="photo-item" onclick="openLightbox('photos/inttw51.jpg')">
-                <img src="photos/inttw51.jpg" alt="Založenie útoku" loading="lazy">
-            </div>
-
+        <div class="photo-grid" id="publicPhotoGrid">
+            <p style="grid-column: 1 / -1; text-align: center;">Načítavam galériu...</p>
         </div>
 
     </div>
@@ -330,6 +314,35 @@
                 closeLightbox();
             }
         });
+
+            async function loadPublicGallery() {
+            try {
+                const res = await fetch("https://Lucifer21sk.pythonanywhere.com/gallery/images");
+                const images = await res.json();
+                
+                const grid = document.getElementById("publicPhotoGrid");
+                grid.innerHTML = "";
+                
+                if (images.length === 0) {
+                    grid.innerHTML = "<p style='grid-column: 1 / -1; text-align: center; color: #888;'>Zatiaľ neboli pridané žiadne fotky.</p>";
+                    return;
+                }
+
+                images.forEach(img => {
+                    grid.innerHTML += `
+                        <div class="photo-item" onclick="openLightbox('photos/${img.filename}')">
+                            <img src="photos/${img.filename}" alt="Foto zápasu" loading="lazy">
+                        </div>
+                    `;
+                });
+            } catch (err) {
+                console.error("Chyba pri načítaní galérie:", err);
+                document.getElementById("publicPhotoGrid").innerHTML = "<p style='color:red;'>Nepodarilo sa načítať fotky.</p>";
+            }
+        }
+
+        // Spustí načítanie galérie hneď ako sa otvorí stránka
+        loadPublicGallery();
     </script>
 </body>
 </html>
