@@ -126,7 +126,7 @@
             images.forEach(img => {
                 grid.innerHTML += `
                     <div class="admin-photo">
-                        <img src="../photos/${img.filename}" alt="Foto">
+                        <img src="${API_BASE}/photos/${img.filename}">
                         <button class="delete-btn" onclick="deletePhoto(${img.id})">X</button>
                     </div>
                 `;
