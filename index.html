@@ -280,7 +280,16 @@ async function loadCalendar() {
                         ? `<a href="${streamUrl}" target="_blank" class="live-btn-dynamic" style="font-size:0.9em; padding:8px 16px;">🔴 SLEDOVAŤ LIVE</a>`
                         : `<div style="background:#d90f23; color:white; padding:5px 12px; border-radius:15px; font-size:0.85em; font-weight:bold; display:inline-block; margin-bottom:15px;">NAŽIVO</div>`;
                     
-                    let phaseText = m.phase === "normal" ? "Základná hracia doba" : m.phase;
+                    let phaseText = "";
+                        if (m.phase === "normal") {
+                            phaseText = "Základná hracia doba";
+                        } else if (m.phase === "overtime") {
+                            phaseText = "Predĺženie";
+                        } else if (m.phase === "shootout") {
+                            phaseText = "Samostatné nájazdy";
+                        } else {
+                            phaseText = m.phase; // Ak by tam bolo niečo iné
+                        }
 
                     let eventsHtml = "";
                     if (m.events && m.events.length > 0) {
