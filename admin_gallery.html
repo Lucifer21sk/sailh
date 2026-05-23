@@ -36,20 +36,62 @@
 </div>
 
 <script>
-    const API_BASE = "https://Lucifer21sk.pythonanywhere.com"; // Zmeň, ak máš inú adresu
+    const API_BASE = "https://Lucifer21sk.pythonanywhere.com";
 
-    // 1. Nahrávanie fotky
+    // --- NEW: Image Compression Function ---
+    async function compressImage(file, maxWidth = 1920, quality = 0.8) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = event => {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+
+                    // Resize if it's too wide
+                    if (width > maxWidth) {
+                        height = Math.round((height * maxWidth) / width);
+                        width = maxWidth;
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // Convert back to a smaller JPEG file
+                    canvas.toBlob((blob) => {
+                        resolve(new File([blob], file.name, {
+                            type: 'image/jpeg',
+                            lastModified: Date.now()
+                        }));
+                    }, 'image/jpeg', quality);
+                };
+            };
+            reader.onerror = error => reject(error);
+        });
+    }
+
+    // 1. Uploading the Photo (Now with compression!)
     async function uploadPhoto() {
         const fileInput = document.getElementById("fileInput");
         if (fileInput.files.length === 0) { alert("Vyber prosím fotku!"); return; }
 
-        const file = fileInput.files[0];
-        const formData = new FormData();
-        formData.append("file", file);
-
-        document.getElementById("uploadStatus").innerText = "Nahrávam fotku, počkajte prosím...";
+        document.getElementById("uploadStatus").innerText = "Spracovávam a nahrávam fotku...";
 
         try {
+            // Grab the original file
+            let file = fileInput.files[0];
+            
+            // COMPRESS IT before uploading! (Max 1920px wide, 80% quality)
+            file = await compressImage(file, 1920, 0.8);
+
+            const formData = new FormData();
+            formData.append("file", file);
+
             const res = await fetch(`${API_BASE}/admin/gallery/upload`, {
                 method: "POST",
                 body: formData
@@ -57,16 +99,21 @@
             const data = await res.json();
 
             if (data.status === "ok") {
-                document.getElementById("uploadStatus").innerText = "Úspešne nahraté!";
-                fileInput.value = ""; // Vyčistí input
-                loadAdminGallery(); // Obnoví zoznam fotiek
+                document.getElementById("uploadStatus").innerText = "Úspešne nahraté za pár sekúnd!";
+                fileInput.value = ""; // Clear input
+                loadAdminGallery(); // Refresh the grid
             } else {
                 alert("Chyba: " + data.error);
+                document.getElementById("uploadStatus").innerText = "";
             }
-        } catch (e) { console.error(e); alert("Chyba siete."); }
+        } catch (e) { 
+            console.error(e); 
+            alert("Chyba siete."); 
+            document.getElementById("uploadStatus").innerText = "";
+        }
     }
 
-    // 2. Načítanie fotiek do admina
+    // 2. Load photos into Admin
     async function loadAdminGallery() {
         const grid = document.getElementById("adminGrid");
         try {
@@ -79,7 +126,7 @@
             images.forEach(img => {
                 grid.innerHTML += `
                     <div class="admin-photo">
-                        <img src="photos/${img.filename}" alt="Foto">
+                        <img src="../photos/${img.filename}" alt="Foto">
                         <button class="delete-btn" onclick="deletePhoto(${img.id})">X</button>
                     </div>
                 `;
@@ -87,13 +134,13 @@
         } catch (e) { console.error(e); }
     }
 
-    // 3. Mazanie fotiek
+    // 3. Delete photos
     async function deletePhoto(id) {
         if (!confirm("Naozaj chceš zmazať túto fotku?")) return;
         
         try {
             await fetch(`${API_BASE}/admin/gallery/${id}/delete`, { method: "POST" });
-            loadAdminGallery(); // Obnoví zoznam
+            loadAdminGallery(); // Refresh grid
         } catch (e) { console.error(e); }
     }
 
