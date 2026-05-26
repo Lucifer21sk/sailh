@@ -164,6 +164,35 @@
         </aside>
     </div>
 
+    <div id="publicRosterModal" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.7);">
+  <div class="modal-box" style="background-color: #fff; margin: 10% auto; padding: 20px; border-radius: 8px; max-width: 600px; width: 90%; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px;">
+        <h3 style="margin: 0; color: #333;">SÚPISKY TÍMOV</h3>
+        <span onclick="closePublicRoster()" style="cursor: pointer; font-size: 24px; font-weight: bold; color: #888;">&times;</span>
+    </div>
+    
+    <div style="display: flex; justify-content: space-between; gap: 20px; text-align: left; margin-bottom: 20px;">
+        <div style="flex: 1; background: #f9f9f9; padding: 15px; border-radius: 8px;">
+            <h4 id="pubRosterHomeTitle" style="color: #244b94; border-bottom: 2px solid #ccc; padding-bottom: 5px; margin-top: 0;">Domáci</h4>
+            <ul id="pubRosterHomeList" style="list-style: none; padding: 0; margin: 0; font-size: 1.1em; line-height: 1.8;">
+                <li>Načítavam...</li>
+            </ul>
+        </div>
+        <div style="flex: 1; background: #f9f9f9; padding: 15px; border-radius: 8px;">
+            <h4 id="pubRosterAwayTitle" style="color: #d90f23; border-bottom: 2px solid #ccc; padding-bottom: 5px; margin-top: 0;">Hostia</h4>
+            <ul id="pubRosterAwayList" style="list-style: none; padding: 0; margin: 0; font-size: 1.1em; line-height: 1.8;">
+                <li>Načítavam...</li>
+            </ul>
+        </div>
+    </div>
+
+    <div style="text-align: center;">
+      <button style="background-color: #244b94; color: white; border: none; padding: 10px 20px; font-size: 1.1em; border-radius: 5px; cursor: pointer;" onclick="closePublicRoster()">Zavrieť</button>
+    </div>
+  </div>
+</div>
+
     <footer class="footer">
         <div class="footer-container">      
             <div class="footer-col">
@@ -320,21 +349,77 @@ async function loadCalendar() {
                         eventsHtml += '</div>';
                     }
 
-                    container.innerHTML += `
-                        <div class="match-card" style="background:white; padding:25px; border-radius:12px; box-shadow:0 4px 10px rgba(0,0,0,0.08); margin-bottom:20px; text-align:center;">
-                            ${statusIndicator}
-                            <div class="scoreboard-display">
-                                <div style="font-weight:bold; font-size:1.3em;">${m.home_team}</div>
-                                <div class="score-numbers">${m.home_score} - ${m.away_score}</div>
-                                <div style="font-weight:bold; font-size:1.3em;">${m.away_team}</div>
-                            </div>
-                            <div style="color:#666; font-size:0.95em; margin-top:10px; font-weight:bold; text-transform:uppercase;">${phaseText}</div>
-                            ${eventsHtml}
+                container.innerHTML += `
+                    <div class="match-card" style="background:white; padding:25px; border-radius:12px; box-shadow:0 4px 10px rgba(0,0,0,0.08); margin-bottom:20px; text-align:center;">
+                        ${statusIndicator}
+                        <div class="scoreboard-display">
+                            <div style="font-weight:bold; font-size:1.3em;">${m.home_team}</div>
+                            <div class="score-numbers">${m.home_score} - ${m.away_score}</div>
+                            <div style="font-weight:bold; font-size:1.3em;">${m.away_team}</div>
                         </div>
-                    `;
+                        <div style="color:#666; font-size:0.95em; margin-top:10px; font-weight:bold; text-transform:uppercase;">${phaseText}</div>
+                        
+                        <div style="margin-top: 15px; margin-bottom: 5px;">
+                            <span onclick="openPublicRoster(${m.id}, '${m.home_team}', '${m.away_team}')" 
+                                style="cursor: pointer; color: #244b94; text-decoration: underline; font-weight: bold; font-size: 0.9em;">
+                            📋 Zobraziť súpisky
+                            </span>
+                        </div>
+                        
+                        ${eventsHtml}
+                    </div>
+                `;
                 });
             } catch (err) { console.error(err); }
         }
+
+        // Zatvorenie okna
+        function closePublicRoster() {
+            document.getElementById("publicRosterModal").style.display = "none";
+        }
+
+        // Otvorenie a stiahnutie súpisiek
+        async function openPublicRoster(matchId, homeName, awayName) {
+            const modal = document.getElementById("publicRosterModal");
+            modal.style.display = "block";
+            
+            // Nastavíme mená tímov do nadpisov
+            document.getElementById("pubRosterHomeTitle").innerText = homeName;
+            document.getElementById("pubRosterAwayTitle").innerText = awayName;
+            
+            const homeList = document.getElementById("pubRosterHomeList");
+            const awayList = document.getElementById("pubRosterAwayList");
+            
+            homeList.innerHTML = "<li>⏳ Načítavam...</li>";
+            awayList.innerHTML = "<li>⏳ Načítavam...</li>";
+
+            try {
+                // Zavoláme tvoje API, ktoré už máš hotové z exportu
+                const res = await fetch(`https://Lucifer21sk.pythonanywhere.com/matches/${matchId}/export`);
+                const data = await res.json();
+                
+                if (data.rosters) {
+                    // Vykreslíme domácich
+                    homeList.innerHTML = "";
+                    data.rosters.home.forEach(p => {
+                        homeList.innerHTML += `<li><strong style="display:inline-block; width: 25px; color: #555;">${p.number}</strong> ${p.name}</li>`;
+                    });
+                    if (data.rosters.home.length === 0) homeList.innerHTML = "<li>Žiadni hráči na súpiske</li>";
+
+                    // Vykreslíme hostí
+                    awayList.innerHTML = "";
+                    data.rosters.away.forEach(p => {
+                        awayList.innerHTML += `<li><strong style="display:inline-block; width: 25px; color: #555;">${p.number}</strong> ${p.name}</li>`;
+                    });
+                    if (data.rosters.away.length === 0) awayList.innerHTML = "<li>Žiadni hráči na súpiske</li>";
+                }
+            } catch (err) {
+                console.error(err);
+                homeList.innerHTML = "<li>❌ Chyba pri načítaní</li>";
+                awayList.innerHTML = "<li>❌ Chyba pri načítaní</li>";
+            }
+        }
+
 
         loadCalendar();
         loadMatches();
