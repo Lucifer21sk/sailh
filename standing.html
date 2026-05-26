@@ -201,9 +201,9 @@
                                 <th class="name-col">Meno</th>
                                 <th title="Tím">Tím</th>
                                 <th title="Počet odohraných zápasov">Z</th>
-                                <th title="Góly">G</th>
-                                <th title="Asistencie">A</th>
-                                <th title="Kanadské body (Góly + Asistencie)" class="points-col">B</th>
+                                <th title="Zoradiť podľa gólov" onclick="sortPlayers('g')" style="cursor: pointer;">G ↕</th>
+                                <th title="Zoradiť podľa asistencií" onclick="sortPlayers('a')" style="cursor: pointer;">A ↕</th>
+                                <th title="Zoradiť podľa bodov" class="points-col" onclick="sortPlayers('pts')" style="cursor: pointer;">B ↕</th>
                             </tr>
                         </thead>
                         <tbody id="playerTable">
@@ -275,6 +275,7 @@
     <script>
         const API_BASE = "https://Lucifer21sk.pythonanywhere.com";
         let currentSeasonType = "regular";
+        let currentPlayerData = [];
 
         function setSeason(type) {
             currentSeasonType = type;
@@ -344,41 +345,61 @@
         async function loadPlayers() {
             try {
                 const res = await fetch(`${API_BASE}/stats/players?season_type=${currentSeasonType}`);
-                const data = await res.json();
-                const tbody = document.getElementById("playerTable");
-                tbody.innerHTML = "";
+                currentPlayersData = await res.json();
                 
-                if (data.length === 0 || data[0].pts === 0 && data[0].gp === 0) {
-                    tbody.innerHTML = "<tr><td colspan='7'>Zatiaľ žiadne dáta pre túto fázu sezóny.</td></tr>";
-                    return;
-                }
-
-                let displayRank = 1; 
-
-                data.forEach((p) => { 
-                    if (p.gp === 0) return;
-
-                    let rank = `${displayRank}.`;
-                    if (displayRank === 1) rank = "🥇";
-                    if (displayRank === 2) rank = "🥈";
-                    if (displayRank === 3) rank = "🥉";
-
-                    let loanBadge = p.is_on_loan ? ' <span title="Hráč je v tomto tíme na hosťovaní" style="background:#f0ad4e; color:white; font-size:0.75em; padding:2px 6px; border-radius:4px; vertical-align:middle; margin-left:6px; font-weight:bold;">🔄 Hosť</span>' : '';
-
-                    tbody.innerHTML += `
-                        <tr>
-                            <td class="rank-col">${rank}</td>
-                            <td class="name-col">${p.name}${loanBadge}</td>
-                            <td style="color:#666; font-size:0.9em; font-weight:bold;">${p.team}</td>
-                            <td>${p.gp}</td>
-                            <td>${p.g}</td>
-                            <td>${p.a}</td>
-                            <td class="points-col">${p.pts}</td>
-                        </tr>`;
-                        
-                    displayRank++; 
-                });
+                // Hneď po stiahnutí ich defaultne zoradíme podľa bodov
+                sortPlayers('pts');
             } catch (e) { console.error(e); }
+        }
+
+        // Nová funkcia: Zoradí hráčov podľa kliknutého stĺpca (g, a, pts)
+        function sortPlayers(sortKey) {
+            currentPlayersData.sort((a, b) => {
+                if (b[sortKey] !== a[sortKey]) {
+                    return b[sortKey] - a[sortKey]; // Hlavné triedenie od najvyššieho po najnižšie
+                } else {
+                    return b.pts - a.pts; // Ak majú rovnako (napr. gólov), rozhodujú body
+                }
+            });
+            
+            renderPlayerTable(); // Po zoradení tabuľku vykreslíme
+        }
+
+        // Nová funkcia: Vykreslí zoradený zoznam do HTML
+        function renderPlayerTable() {
+            const tbody = document.getElementById("playerTable");
+            tbody.innerHTML = "";
+            
+            if (currentPlayersData.length === 0 || (currentPlayersData[0].pts === 0 && currentPlayersData[0].gp === 0)) {
+                tbody.innerHTML = "<tr><td colspan='7'>Zatiaľ žiadne dáta pre túto fázu sezóny.</td></tr>";
+                return;
+            }
+
+            let displayRank = 1; 
+
+            currentPlayersData.forEach((p) => { 
+                if (p.gp === 0) return;
+
+                let rank = `${displayRank}.`;
+                if (displayRank === 1) rank = "🥇";
+                if (displayRank === 2) rank = "🥈";
+                if (displayRank === 3) rank = "🥉";
+
+                let loanBadge = p.is_on_loan ? ' <span title="Hráč je v tomto tíme na hosťovaní" style="background:#f0ad4e; color:white; font-size:0.75em; padding:2px 6px; border-radius:4px; vertical-align:middle; margin-left:6px; font-weight:bold;">🔄 Hosť</span>' : '';
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="rank-col">${rank}</td>
+                        <td class="name-col">${p.name}${loanBadge}</td>
+                        <td style="color:#666; font-size:0.9em; font-weight:bold;">${p.team}</td>
+                        <td>${p.gp}</td>
+                        <td>${p.g}</td>
+                        <td>${p.a}</td>
+                        <td class="points-col">${p.pts}</td>
+                    </tr>`;
+                    
+                displayRank++; 
+            });
         }
 
         async function loadHistory() {
