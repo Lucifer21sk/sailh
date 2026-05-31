@@ -243,8 +243,17 @@
         }
     }
 
+    // Pomocná funkcia na preklad času do čísla pre zoradenie
+    function getMinVal(m) {
+        if (!m) return 9999;
+        if (["SO", "GWG", "SN", "PP", "pp"].includes(m)) return 9998;
+        let n = parseInt(String(m).replace(/\D/g, ""));
+        return isNaN(n) ? 9999 : n;
+    }
     // ================= GÓLY VÝPIS A ÚPRAVA =================
     function renderGoals(goals) {
+
+        goals.sort((a, b) => getMinVal(a.minute) - getMinVal(b.minute)); // Zoradí góly podle minuty
         const container = document.getElementById("goalsList");
         container.innerHTML = "";
         if(goals.length === 0) { container.innerHTML = "<div class='event-row'>Žiadne góly.</div>"; return; }
@@ -302,6 +311,7 @@
 
     // ================= TRESTY =================
     function renderPenalties(pens) {
+        pens.sort((a, b) => getMinVal(a.minute) - getMinVal(b.minute)); // Zoradí tresty podle minuty
         const container = document.getElementById("penaltiesList");
         container.innerHTML = "";
         if(pens.length === 0) { container.innerHTML = "<div class='event-row'>Žiadne tresty.</div>"; return; }
