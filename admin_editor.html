@@ -13,7 +13,7 @@
         #post-editor .form-row > div { flex: 1; }
         #post-editor label { display: block; font-weight: bold; font-size: 0.9em; margin-bottom: 5px; color:#555;}
         #post-editor select, #post-editor input { width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #ccc; font-size: 15px; }
-        #post-editor .section-title { background: #244b94; color: white; padding: 10px; font-weight: bold; margin-top: 20px; border-radius: 5px; }
+        #post-editor .section-title { background: #244b94; color: white; padding: 10px; font-weight: bold; margin-top: 20px; border-radius: 5px; display: flex; justify-content: space-between; align-items: center;}
         #post-editor .event-row { display: flex; align-items: center; justify-content: space-between; background: #fafafa; padding: 12px; border-bottom: 1px solid #eee; gap: 10px; }
         #post-editor .event-row:hover { background: #f0f4ff; }
         #post-editor .event-info { flex: 1; font-size: 0.95em; }
@@ -51,10 +51,32 @@
                 <button class="btn btn-delete-match" onclick="deleteWholeMatch()">🗑️ Zmazať celý tento zápas z databázy</button>
             </div>
 
-            <div class="section-title">🏒 GÓLY</div>
+            <!-- HLAVIČKA GÓLOV S TLAČIDLOM -->
+            <div class="section-title">
+                <span>🏒 GÓLY</span>
+                <button class="btn" style="background: white; color: #244b94;" onclick="showAddGoalForm()">+ Pridať gól</button>
+            </div>
+            
+            <!-- FORMULÁR NA PRIDANIE NOVÉHO GÓLU -->
+            <div id="addGoalForm" class="edit-mode" style="display:none; background:#e8f4f8; border-left-color:#17a2b8;">
+                <div class="edit-col">
+                    <label>Tím</label>
+                    <select id="new-g-team" onchange="updateAddGoalPlayers()"></select>
+                </div>
+                <div class="edit-col"><label>Minúta</label><input type="text" id="new-g-min" placeholder="napr. 12:34"></div>
+                <div class="edit-col"><label>Strelil</label><div id="new-g-p-container"></div></div>
+                <div class="edit-col"><label>Asistencia 1</label><div id="new-g-a1-container"></div></div>
+                <div style="display:flex; align-items:flex-end; padding-bottom:3px; flex-basis: 100%; justify-content: flex-end; margin-top: 10px;">
+                    <button class="btn btn-save" onclick="saveNewGoal()">Uložiť nový gól</button>
+                    <button class="btn btn-cancel" onclick="document.getElementById('addGoalForm').style.display='none'">Zrušiť</button>
+                </div>
+            </div>
+
             <div id="goalsList"></div>
 
-            <div class="section-title" style="background: #d90f23;">⏱️ TRESTY</div>
+            <div class="section-title" style="background: #d90f23;">
+                <span>⏱️ TRESTY</span>
+            </div>
             <div id="penaltiesList"></div>
         </div>
     </div>
@@ -106,6 +128,7 @@
         };
 
         document.getElementById("editorContent").style.display = "block";
+        document.getElementById("addGoalForm").style.display = "none";
         document.getElementById("goalsList").innerHTML = "Načítavam góly...";
         document.getElementById("penaltiesList").innerHTML = "Načítavam tresty...";
 
@@ -125,8 +148,9 @@
         } catch(e) { console.error(e); }
     }
 
-    function buildPlayerSelect(teamId, selectedId, emptyText = "Nikto") {
-        let html = `<select><option value="">-- ${emptyText} --</option>`;
+    function buildPlayerSelect(teamId, selectedId, emptyText = "Nikto", customId = "") {
+        let idAttr = customId ? `id="${customId}"` : "";
+        let html = `<select ${idAttr}><option value="">-- ${emptyText} --</option>`;
         (rosters[teamId] || []).forEach(p => {
             const isSel = (p.id == selectedId) ? "selected" : "";
             html += `<option value="${p.id}" ${isSel}>${p.number ? p.number+' - ' : ''}${p.name}</option>`;
@@ -167,7 +191,59 @@
         }
     }
 
-    // ================= GÓLY =================
+    // ================= PRIDÁVANIE NOVÉHO GÓLU =================
+    function showAddGoalForm() {
+        document.getElementById("addGoalForm").style.display = "flex";
+        document.getElementById("new-g-min").value = "";
+        
+        document.getElementById("new-g-team").innerHTML = `
+            <option value="home">${currentMatch.home_name} (Domáci)</option>
+            <option value="away">${currentMatch.away_name} (Hostia)</option>
+        `;
+        updateAddGoalPlayers();
+    }
+
+    function updateAddGoalPlayers() {
+        const teamSide = document.getElementById("new-g-team").value;
+        const teamId = (teamSide === "home") ? currentMatch.home_id : currentMatch.away_id;
+        
+        document.getElementById("new-g-p-container").innerHTML = buildPlayerSelect(teamId, null, "Neznámy", "new-g-p");
+        document.getElementById("new-g-a1-container").innerHTML = buildPlayerSelect(teamId, null, "Bez", "new-g-a1");
+    }
+
+    async function saveNewGoal() {
+        const teamSide = document.getElementById("new-g-team").value;
+        const teamId = (teamSide === "home") ? currentMatch.home_id : currentMatch.away_id;
+        const min = document.getElementById("new-g-min").value;
+        const pId = document.getElementById("new-g-p").value || null;
+        const a1Id = document.getElementById("new-g-a1").value || null;
+
+        if (!min) {
+            alert("Prosím zadaj minútu gólu.");
+            return;
+        }
+
+        try {
+            await fetch(`${API_BASE}/admin/goals/add`, {
+                method: "POST", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ 
+                    match_id: currentMatch.id,
+                    team_id: teamId,
+                    minute: min,
+                    player_id: pId,
+                    assist1_id: a1Id
+                })
+            });
+            
+            document.getElementById("addGoalForm").style.display = "none";
+            loadMatchEvents(); // Obnoví výpis
+        } catch(e) {
+            console.error(e);
+            alert("Nepodarilo sa uložiť gól.");
+        }
+    }
+
+    // ================= GÓLY VÝPIS A ÚPRAVA =================
     function renderGoals(goals) {
         const container = document.getElementById("goalsList");
         container.innerHTML = "";
@@ -177,7 +253,6 @@
             const teamName = g.team_id == currentMatch.home_id ? currentMatch.home_name : currentMatch.away_name;
             const scorer = getPlayerName(g.team_id, g.player_id);
             const a1 = getPlayerName(g.team_id, g.assist1_id);
-            const a2 = getPlayerName(g.team_id, g.assist2_id);
             const minuteStr = g.minute ? g.minute + "'" : "-";
 
             const div = document.createElement("div");
@@ -188,10 +263,10 @@
                 <div class="event-info">
                     <strong style="color:#244b94;">${minuteStr}</strong> | <strong>${teamName}</strong> <br>
                     Gól: <span style="color:#d90f23; font-weight:bold;">${scorer}</span> 
-                    <span style="color:#666; font-size:0.9em;">(A: ${a1 !== "Neznámy" ? a1 : '-'}, ${a2 !== "Neznámy" ? a2 : '-'})</span>
+                    <span style="color:#666; font-size:0.9em;">(A: ${a1 !== "Neznámy" ? a1 : '-'})</span>
                 </div>
                 <div>
-                    <button class="btn btn-edit" onclick="editGoal(${g.id}, ${g.team_id}, '${g.minute || ''}', ${g.player_id || null}, ${g.assist1_id || null}, ${g.assist2_id || null})">Upraviť</button>
+                    <button class="btn btn-edit" onclick="editGoal(${g.id}, ${g.team_id}, '${g.minute || ''}', ${g.player_id || null}, ${g.assist1_id || null})">Upraviť</button>
                     <button class="btn btn-delete" onclick="deleteEvent('goals', ${g.id})">X</button>
                 </div>
             `;
@@ -199,14 +274,13 @@
         });
     }
 
-    function editGoal(id, teamId, minute, pId, a1Id, a2Id) {
+    function editGoal(id, teamId, minute, pId, a1Id) {
         const div = document.getElementById(`goal-${id}`);
         div.className = "edit-mode";
         div.innerHTML = `
             <div class="edit-col"><label>Minúta</label><input type="text" id="g-min-${id}" value="${minute}"></div>
             <div class="edit-col"><label>Strelil</label><div id="sel-g-p-${id}">${buildPlayerSelect(teamId, pId, "Neznámy")}</div></div>
-            <div class="edit-col"><label>Asist. 1</label><div id="sel-g-a1-${id}">${buildPlayerSelect(teamId, a1Id, "Bez")}</div></div>
-            <div class="edit-col"><label>Asist. 2</label><div id="sel-g-a2-${id}">${buildPlayerSelect(teamId, a2Id, "Bez")}</div></div>
+            <div class="edit-col"><label>Asistencia 1</label><div id="sel-g-a1-${id}">${buildPlayerSelect(teamId, a1Id, "Bez")}</div></div>
             <div style="display:flex; align-items:flex-end; padding-bottom:3px;">
                 <button class="btn btn-save" onclick="saveGoal(${id})">Uložiť</button>
                 <button class="btn btn-cancel" onclick="loadMatchEvents()">Zrušiť</button>
@@ -218,11 +292,10 @@
         const min = document.getElementById(`g-min-${id}`).value;
         const pId = document.querySelector(`#sel-g-p-${id} select`).value || null;
         const a1Id = document.querySelector(`#sel-g-a1-${id} select`).value || null;
-        const a2Id = document.querySelector(`#sel-g-a2-${id} select`).value || null;
 
         await fetch(`${API_BASE}/admin/goals/${id}/update`, {
             method: "POST", headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ minute: min, player_id: pId, assist1_id: a1Id, assist2_id: a2Id })
+            body: JSON.stringify({ minute: min, player_id: pId, assist1_id: a1Id, assist2_id: null })
         });
         loadMatchEvents();
     }
