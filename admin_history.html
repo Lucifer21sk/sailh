@@ -226,7 +226,12 @@
                 if (!data.goals || data.goals.length === 0) { 
                     goalsHtml = "<tr><td colspan='4' style='text-align:center;'>Žiadne góly.</td></tr>"; 
                 } else {
-                    goalsHtml = data.goals.map(g => {
+                    const sortedGoals = [...data.goals].sort((a, b) => {
+                        const aMinute = parseInt(a.minute || 0, 10);
+                        const bMinute = parseInt(b.minute || 0, 10);
+                        return aMinute - bMinute;
+                    });
+                    goalsHtml = sortedGoals.map(g => {
                         let a1 = g.a1 ? g.a1 : ""; 
                         let a2 = g.a2 ? ", " + g.a2 : "";
                         let minStr = g.minute ? g.minute + "'" : "-";
