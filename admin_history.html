@@ -42,7 +42,7 @@
         .signature-line { width: 250px; text-align: center; border-top: 1px solid #000; padding-top: 8px; font-size: 0.9em; }
 
         @media print {
-            .sidebar, .action-bar, .edit-panel { display: none !important; }
+            .sidebar, .action-bar, .edit-panel, .no-print { display: none !important; }
             .layout { display: block; height: auto; }
             .main-content { padding: 0; overflow: visible; background: none; }
             body { background: white; color: black; font-size: 12pt; }
@@ -146,7 +146,6 @@
                 }
 
                 finished.forEach(m => {
-                    // Posielame si aj ID tímov priamo do funkcie!
                     sidebar.innerHTML += `
                         <div class="match-btn" onclick="generateReport(${m.id}, ${m.home_team_id}, ${m.away_team_id})">
                             <div style="font-weight:bold;">${m.home_team} vs ${m.away_team}</div>
@@ -195,14 +194,32 @@
                 let dateObj = new Date(m.started_at);
                 let dateStr = isNaN(dateObj) ? m.started_at : dateObj.toLocaleDateString('sk-SK') + " " + dateObj.toLocaleTimeString('sk-SK', {hour: '2-digit', minute:'2-digit'});
 
+                // Vykreslenie domácich + tlačidlo na vymazanie
                 let homeRosterHtml = "";
                 if (data.rosters && data.rosters.home) {
-                    homeRosterHtml = data.rosters.home.map(p => `<tr><td style="width:30px; text-align:center;">${p.number}</td><td>${p.name}</td></tr>`).join("");
+                    homeRosterHtml = data.rosters.home.map(p => `
+                        <tr>
+                            <td style="width:30px; text-align:center;">${p.number}</td>
+                            <td>${p.name}</td>
+                            <td class="no-print" style="width:30px; text-align:center;">
+                                <button onclick="removePlayerFromRoster(${matchId}, ${p.id})" style="border:none; background:none; cursor:pointer;" title="Vymazať hráča">❌</button>
+                            </td>
+                        </tr>
+                    `).join("");
                 }
                 
+                // Vykreslenie hostí + tlačidlo na vymazanie
                 let awayRosterHtml = "";
                 if (data.rosters && data.rosters.away) {
-                    awayRosterHtml = data.rosters.away.map(p => `<tr><td style="width:30px; text-align:center;">${p.number}</td><td>${p.name}</td></tr>`).join("");
+                    awayRosterHtml = data.rosters.away.map(p => `
+                        <tr>
+                            <td style="width:30px; text-align:center;">${p.number}</td>
+                            <td>${p.name}</td>
+                            <td class="no-print" style="width:30px; text-align:center;">
+                                <button onclick="removePlayerFromRoster(${matchId}, ${p.id})" style="border:none; background:none; cursor:pointer;" title="Vymazať hráča">❌</button>
+                            </td>
+                        </tr>
+                    `).join("");
                 }
                 
                 let goalsHtml = "";
@@ -251,15 +268,15 @@
                         <div class="r-section">
                             <div class="r-section-title">Zostava: ${m.home_team}</div>
                             <table class="simple-table">
-                                <thead><tr><th>Č.</th><th>Meno</th></tr></thead>
-                                <tbody>${homeRosterHtml || "<tr><td colspan='2'>Nezadaná zostava</td></tr>"}</tbody>
+                                <thead><tr><th>Č.</th><th>Meno</th><th class="no-print"></th></tr></thead>
+                                <tbody>${homeRosterHtml || "<tr><td colspan='3'>Nezadaná zostava</td></tr>"}</tbody>
                             </table>
                         </div>
                         <div class="r-section">
                             <div class="r-section-title">Zostava: ${m.away_team}</div>
                             <table class="simple-table">
-                                <thead><tr><th>Č.</th><th>Meno</th></tr></thead>
-                                <tbody>${awayRosterHtml || "<tr><td colspan='2'>Nezadaná zostava</td></tr>"}</tbody>
+                                <thead><tr><th>Č.</th><th>Meno</th><th class="no-print"></th></tr></thead>
+                                <tbody>${awayRosterHtml || "<tr><td colspan='3'>Nezadaná zostava</td></tr>"}</tbody>
                             </table>
                         </div>
                     </div>
@@ -304,14 +321,11 @@
             }
         }
 
-        // --- FUNKCIE PRE ÚPRAVU ZÁPISU A SÚPISKY ---
-        
         function openEditPanel() {
             document.getElementById("editReferee").value = currentReportData.referee;
             document.getElementById("editDoctor").value = currentReportData.doctor;
             document.getElementById("editNotes").value = currentReportData.notes;
             
-            // Načítanie hráčov do selectov
             if(currentReportData.home_team_id) loadTeamPlayersForSelect(currentReportData.home_team_id, "homePlayerSelect");
             if(currentReportData.away_team_id) loadTeamPlayersForSelect(currentReportData.away_team_id, "awayPlayerSelect");
             
@@ -336,13 +350,10 @@
                 });
                 
                 if (res.ok) {
-                    alert("Údaje boli úspešne uložené!");
-                    generateReport(currentMatchId); // Znovu načíta zápas s novými údajmi
+                    generateReport(currentMatchId);
                 }
             } catch(e) { console.error(e); }
         }
-
-        // --- SÚPISKA LOGIKA ---
         
         async function loadTeamPlayersForSelect(teamId, selectId) {
             try {
@@ -389,7 +400,6 @@
                 });
 
                 if (res.ok) {
-                    // Úspešne pridané, vyresetujeme políčka a načítame nový report
                     document.getElementById(side + "PlayerSelect").value = "";
                     document.getElementById(side + "PlayerNumber").value = "";
                     generateReport(currentMatchId);
@@ -397,6 +407,30 @@
                     alert("Chyba pri pridávaní hráča.");
                 }
             } catch (e) { console.error(e); }
+        }
+
+        async function removePlayerFromRoster(matchId, playerId) {
+            if (!playerId || playerId === 'undefined') {
+                alert("Chyba: Skontrolujte prosím, či ste upravili flask_app.py podľa pokynov. Server nám neposlal ID hráča.");
+                return;
+            }
+
+            if (!confirm("Naozaj chcete tohto hráča vymazať zo súpisky pre tento zápas?")) return;
+            
+            try {
+                const res = await fetch(`${API_BASE}/admin/matches/${matchId}/roster/${playerId}/delete`, {
+                    method: "DELETE"
+                });
+                
+                if (res.ok) {
+                    generateReport(matchId); // Iba znovu ticho načíta report!
+                } else {
+                    alert("Nepodarilo sa odstrániť hráča.");
+                }
+            } catch (e) {
+                console.error(e);
+                alert("Chyba pri komunikácii so serverom.");
+            }
         }
 
         loadFinishedMatches();
