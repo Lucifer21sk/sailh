@@ -226,18 +226,47 @@
                 if (!data.goals || data.goals.length === 0) { 
                     goalsHtml = "<tr><td colspan='4' style='text-align:center;'>Žiadne góly.</td></tr>"; 
                 } else {
-                    function minuteValue(min) {
-                        if (!min && min !== 0) return 0;
-                        const s = String(min).trim();
-                        if (s === "-") return 0;
-                        const parts = s.split(/\+/);
-                        const base = parseInt(parts[0], 10) || 0;
-                        const extra = parts[1] ? (parseInt(parts[1], 10) || 0) : 0;
-                        return base + extra;
-                    }
+                    const parseGoalTime = (goal, phase) => {
+                        // prefer explicit shot minute/time fields if provided by server
+                        const raw = goal.shot_time || goal.shot_minute || goal.minute || "";
+                        let minutes = NaN, seconds = NaN;
+                        let hasDigits = false;
 
-                    const sortedGoals = [...data.goals].sort((a, b) => minuteValue(a.minute) - minuteValue(b.minute));
+                        if (typeof raw === 'number') {
+                            minutes = raw;
+                            hasDigits = true;
+                        } else if (/^\d+:\d{1,2}$/.test(raw)) {
+                            const parts = raw.split(':');
+                            minutes = parseInt(parts[0]||0,10);
+                            seconds = parseInt(parts[1]||0,10);
+                            hasDigits = true;
+                        } else {
+                            // extract leading number (minutes) if format like "12'" or "12"
+                            const m = (''+raw).match(/(\d+)/);
+                            if (m) {
+                                minutes = parseInt(m[1],10);
+                                hasDigits = true;
+                            }
+                        }
 
+                        // If there are no digits in the time (e.g. 'SO', 'GWG', 'pen'), mark as non-numeric
+                        // so they sort after all numeric times by giving them a very large totalSeconds.
+                        const totalSeconds = hasDigits ? ((isNaN(minutes)?0:minutes) * 60 + (isNaN(seconds)?0:seconds)) : Number.POSITIVE_INFINITY;
+                        const phaseKey = String(phase || 'normal').toLowerCase();
+                        const phaseOrderMap = { normal: 0, overtime: 1, shootout: 2 };
+                        return { totalSeconds, phase: phaseKey, phaseOrder: phaseOrderMap[phaseKey] ?? 0, hasDigits };
+                    };
+
+                    const sortedGoals = [...data.goals].sort((a, b) => {
+                        const aTime = parseGoalTime(a, a.phase || m.phase);
+                        const bTime = parseGoalTime(b, b.phase || m.phase);
+                        // sort primarily by numeric time (totalSeconds) so entries like "SO" or "GWG"
+                        // which may have non-standard phase markers are placed after normal time
+                        if (aTime.totalSeconds !== bTime.totalSeconds) return aTime.totalSeconds - bTime.totalSeconds;
+                        // if times equal, fall back to phase ordering
+                        if (aTime.phaseOrder !== bTime.phaseOrder) return aTime.phaseOrder - bTime.phaseOrder;
+                        return 0;
+                    });
                     goalsHtml = sortedGoals.map(g => {
                         let a1 = g.a1 ? g.a1 : ""; 
                         let a2 = g.a2 ? ", " + g.a2 : "";
