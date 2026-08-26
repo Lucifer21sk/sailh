@@ -108,6 +108,7 @@
             padding: 12px 20px;
             border-bottom: 1px solid #eee;
             transition: background 0.2s;
+            cursor: pointer;
         }
         .history-item:hover { background: #f0f4ff; }
         
@@ -142,17 +143,26 @@
         </div>
         <div class="site-title">Slovenská asociácia in-line hokeja</div>
         <nav class="menu">
-            <a href="index.html">Domov</a>
-            <a href="standing.html" class="active">Bauer-Extraliga</a>
+            <a href="live.html" class="active">Domov</a>
+            <a href="news.html">Novinky</a>
+            <a href="standing.html">Bauer-Extraliga</a>
             <a href="clubs.html">Kluby</a>
             <a href="https://www.inlineliga.sk">Amatérska liga</a>
-            <a href="https://www.mihwa.org/">Majstrovstvá sveta</a>
-            <a href="gallery.html">Galéria</a>
+            <<a href="http://www.mihwa.hockeysyte.com/">Majstrovstvá sveta</a>
+            <a href="gallery.html">Galéria</a>            
             <a href="partners.html">Partneri</a>
         </nav>
     </header>
 
     <div class="container">
+        <!-- Výber sezóny nad tabuľkou a štatistikami -->
+        <div class="season-selector" style="text-align: right; margin-bottom: 20px;">
+            <label for="seasonSelect" style="font-weight: bold; color: #244b94;">Vyberte sezónu: </label>
+            <select id="seasonSelect" onchange="loadSeasonData()" style="padding: 8px; border-radius: 5px; border: 1px solid #ccc; font-size: 1em; cursor: pointer;">
+                <option value="2026/2027" selected>2026/2027 (Nová sezóna)</option>
+                <option value="2025/2026">2025/2026 (História)</option>
+            </select>
+        </div>
 
         <div class="season-toggle">
             <button id="btn-regular" class="btn-toggle active" onclick="setSeason('regular')">Základná časť</button>
@@ -224,7 +234,7 @@
         </div>
     </div>
 
-<footer class="footer">
+    <footer class="footer">
         <div class="footer-container">       
             <div class="footer-col">
                 <h4 class="footer-title">SAILH</h4>
@@ -275,7 +285,7 @@
     <script>
         const API_BASE = "https://Lucifer21sk.pythonanywhere.com";
         let currentSeasonType = "regular";
-        let currentPlayerData = [];
+        let currentPlayersData = [];
 
         function setSeason(type) {
             currentSeasonType = type;
@@ -306,22 +316,32 @@
             loadHistory();
         }
 
+        // Znovu načíta všetky funkcie so zvolenou sezónou
+        function loadSeasonData() {
+            setSeason(currentSeasonType); 
+        }
+
         async function loadTeams() {
             if(currentSeasonType === "playoff") return; 
             try {
-                const res = await fetch(`${API_BASE}/stats/teams?season_type=${currentSeasonType}`);
+                const season = document.getElementById("seasonSelect").value;
+                // Dynamická URL podľa sezóny
+                const url = season === "2025/2026" 
+                    ? `${API_BASE}/archive/2025/stats/teams?season_type=${currentSeasonType}`
+                    : `${API_BASE}/stats/teams?season_type=${currentSeasonType}`;
+
+                const res = await fetch(url);
                 const data = await res.json();
                 const tbody = document.getElementById("teamTable");
                 tbody.innerHTML = "";
                 data.forEach((t, i) => {
-                    // Vypočítame a zafarbíme rozdiel
                     let diffColor = "#666";
                     let diffText = t.gd;
                     if (t.gd > 0) {
-                        diffColor = "#28a745"; // Zelená pre plus
+                        diffColor = "#28a745"; 
                         diffText = "+" + t.gd;
                     } else if (t.gd < 0) {
-                        diffColor = "#d90f23"; // Červená pre mínus
+                        diffColor = "#d90f23"; 
                     }
 
                     tbody.innerHTML += `
@@ -344,7 +364,13 @@
 
         async function loadPlayers() {
             try {
-                const res = await fetch(`${API_BASE}/stats/players?season_type=${currentSeasonType}`);
+                const season = document.getElementById("seasonSelect").value;
+                // Dynamická URL podľa sezóny
+                const url = season === "2025/2026" 
+                    ? `${API_BASE}/archive/2025/stats/players?season_type=${currentSeasonType}`
+                    : `${API_BASE}/stats/players?season_type=${currentSeasonType}`;
+
+                const res = await fetch(url);
                 currentPlayersData = await res.json();
                 
                 // Hneď po stiahnutí ich defaultne zoradíme podľa bodov
@@ -352,20 +378,18 @@
             } catch (e) { console.error(e); }
         }
 
-        // Nová funkcia: Zoradí hráčov podľa kliknutého stĺpca (g, a, pts)
         function sortPlayers(sortKey) {
             currentPlayersData.sort((a, b) => {
                 if (b[sortKey] !== a[sortKey]) {
-                    return b[sortKey] - a[sortKey]; // Hlavné triedenie od najvyššieho po najnižšie
+                    return b[sortKey] - a[sortKey]; 
                 } else {
-                    return b.pts - a.pts; // Ak majú rovnako (napr. gólov), rozhodujú body
+                    return b.pts - a.pts; 
                 }
             });
             
-            renderPlayerTable(); // Po zoradení tabuľku vykreslíme
+            renderPlayerTable(); 
         }
 
-        // Nová funkcia: Vykreslí zoradený zoznam do HTML
         function renderPlayerTable() {
             const tbody = document.getElementById("playerTable");
             tbody.innerHTML = "";
@@ -404,7 +428,13 @@
 
         async function loadHistory() {
             try {
-                const res = await fetch(`${API_BASE}/matches/history?season_type=${currentSeasonType}`);
+                const season = document.getElementById("seasonSelect").value;
+                // Dynamická URL podľa sezóny
+                const url = season === "2025/2026" 
+                    ? `${API_BASE}/archive/2025/matches/history?season_type=${currentSeasonType}`
+                    : `${API_BASE}/matches/history?season_type=${currentSeasonType}`;
+
+                const res = await fetch(url);
                 const data = await res.json();
                 const list = document.getElementById("historyList");
                 list.innerHTML = "";
@@ -449,7 +479,13 @@
             body.innerHTML = "<p style='text-align:center;'>Načítavam detaily...</p>";
 
             try {
-                const res = await fetch(`${API_BASE}/matches/${matchId}/details`);
+                const season = document.getElementById("seasonSelect").value;
+                // Dynamická URL podľa sezóny
+                const url = season === "2025/2026" 
+                    ? `${API_BASE}/archive/2025/matches/${matchId}/details`
+                    : `${API_BASE}/matches/${matchId}/details`;
+
+                const res = await fetch(url);
                 const events = await res.json();
                 
                 if (events.length === 0) {
