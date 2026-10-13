@@ -15,17 +15,17 @@
             padding: 0 20px;
         }
 
-        /* 1. & 2. Hlavné "Hero" články */
+        /* Hlavné "Hero" články */
         .hero-article {
             background: white;
             border-radius: 12px;
             box-shadow: 0 6px 20px rgba(0,0,0,0.06);
-            border-top: 6px solid #d90f23; /* Červený akcent pre úspech na MS */
+            border-top: 6px solid #d90f23; /* Červený akcent */
             overflow: hidden;
             margin-bottom: 50px;
         }
 
-        /* Modrý akcent pre domácu súťaž */
+        /* Modrý akcent */
         .hero-article.blue-accent {
             border-top: 6px solid #244b94;
         }
@@ -102,16 +102,8 @@
             font-size: 1.2em;
         }
 
-        /* ŠTÝL PRE TABUĽKY */
+        /* ŠTÝL PRE TABUĽKY (jednotný modrý pre všetky články) */
         .custom-news-table {
-            width: 75%;
-            border-collapse: collapse;
-            margin: 25px auto;
-            font-size: 1em;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
-
-        .custom-news-table2 {
             width: 75%;
             border-collapse: collapse;
             margin: 25px auto;
@@ -127,12 +119,8 @@
             font-weight: bold;
         }
 
-        .custom-news-table2 th {
+        .hero-article:not(.blue-accent) .custom-news-table th {
             background-color: #d90f23;
-            color: white;
-            text-align: left;
-            padding: 12px;
-            font-weight: bold;
         }
 
         .custom-news-table td {
@@ -140,15 +128,7 @@
             border-bottom: 1px solid #eee;
         }
 
-        .custom-news-table2 td {
-            padding: 12px;
-            border-bottom: 1px solid #eee;
-        }
-
         .custom-news-table tr:nth-child(even) {
-            background-color: #f8f9fa;
-        }
-        .custom-news-table2 tr:nth-child(even) {
             background-color: #f8f9fa;
         }
 
@@ -227,6 +207,106 @@
             .hero-content { padding: 20px; }
             .match-results ul { grid-template-columns: 1fr; }
         }
+
+        /* ===== MOBILE FIXES ===== */
+
+        /* Galéria nikdy nepretečie, ani na 320px displejoch */
+        .article-gallery {
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+        }
+
+        /* Dlhé odkazy sa zalamujú namiesto rozťahovania stránky */
+        .article-text a {
+            overflow-wrap: anywhere;
+        }
+
+        @media (max-width: 768px) {
+            .news-page-container {
+                margin: 20px auto;
+                padding: 0 12px;
+            }
+
+            .hero-article {
+                margin-bottom: 30px;
+            }
+
+            /* Tabuľky: plná šírka, pri úzkom displeji sa posúvajú do strany */
+            .custom-news-table {
+                width: 100%;
+                display: block;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                font-size: 0.95em;
+            }
+
+            .custom-news-table th,
+            .custom-news-table td {
+                padding: 8px 10px;
+                white-space: nowrap;
+            }
+
+
+            .article-text p {
+                text-align: left;
+                font-size: 1em;
+                line-height: 1.6;
+            }
+
+            .article-text ul {
+                padding: 14px 16px 14px 32px;
+                list-style-position: outside;
+                text-align: left;
+            }
+
+            .article-text ul li {
+                font-size: 1.05em;
+            }
+
+            .match-results {
+                padding: 14px;
+            }
+
+            .article-gallery img {
+                height: 220px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            /* Hlavička: menej miesta, názov sa môže zalomiť, menu na viac riadkov */
+            .header {
+                padding: 12px 16px;
+            }
+
+            .site-title {
+                white-space: normal;
+                margin: 10px 0;
+                font-size: 18px;
+            }
+
+            .menu {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .menu a {
+                margin: 6px 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-content {
+                padding: 16px;
+            }
+
+            .article-title {
+                font-size: 1.4em;
+            }
+
+            .article-meta {
+                font-size: 0.8em;
+            }
+        }
     </style>
 </head>
 <body>
@@ -247,15 +327,15 @@
             <a href="clubs.html">Kluby</a>
             <a href="https://www.inlineliga.sk">Amatérska liga</a>
             <a href="http://www.mihwa.hockeysyte.com/">Majstrovstvá sveta</a>
-            <a href="gallery.html">Galéria</a>            
-            <a href="partners.html">Partneri</a>              
+            <a href="gallery.html">Galéria</a>
+            <a href="partners.html">Partneri</a>
         </nav>
     </header>
 
     <div class="news-page-container">
 
         <!-- ======================================================== -->
-        <!-- ČLÁNOK 0: SVETOVÉ SKATE HRY 2026 (JUNIORI + SENIORI)     -->
+        <!-- ČLÁNOK 1: SVETOVÉ SKATE HRY 2026 (MODRÝ AKCENT)          -->
         <!-- ======================================================== -->
         <article class="hero-article blue-accent">
             <!-- Banner doplníme, keď bude fotka:
@@ -267,27 +347,36 @@
             <div class="hero-content">
                 <div class="article-meta">🏆 Reprezentácia / Svetové skate hry</div>
 
-                <h1 class="article-title">Svetové skate hry: juniori skončili v skupine A tretí, seniori bojujú o priečky</h1>
+                <h1 class="article-title">Svetové skate hry: juniori skončili na 4. mieste, seniori bojujú o priečky</h1>
 
                 <div class="article-text">
                     <p>V dňoch 3. – 17. októbra 2026 sa konajú Svetové skate hry, na ktorých sa predstavuje aj slovenská in-line hokejová reprezentácia. Ako prví nastúpili juniori, po nich sa do bojov zapojili seniori.</p>
 
-                    <h3>Juniori: 3. miesto v skupine A</h3>
-                    <p>Slovenskí juniori odohrali v skupine A osem zápasov a skončili na výbornom treťom mieste so ziskom 14 bodov a skóre 38:29. Pred nimi skončili iba Taliansko (22 bodov) a Francúzsko (18 bodov), za sebou nechali Kolumbiu a Mexiko.</p>
-                    <p>Naši juniori vyhrali štyri zápasy v základnom hracom čase. V zápasoch s Talianskom a Španielskom navyše len tesne prehrali po predĺžení.</p>
+                    <h3>Juniori: 4. miesto na turnaji</h3>
+                    <p>Slovenskí juniori odohrali v skupine A štyri zápasy. Začali prehrou s Talianskom 4:7, potom nasledovalo vysoké víťazstvo nad Mexikom 10:1 a prehra s Francúzskom 0:5. Základnú časť zakončili výhrou 5:3 nad Kolumbiou, ktorá im otvorila cestu do play off.</p>
+                    <p>V play off si Slováci v osemfinále poradili s Nemeckom 6:1 a v štvrťfinále s Namíbiou 6:3. V semifinále prehrali s Talianskom, ktoré napokon turnaj vyhralo, tesne 3:4 po predĺžení. V zápase o 3. miesto sa stretli so Španielskom a opäť rozhodlo predĺženie, v ktorom podľahli 4:5.</p>
+                    <p>Juniori tak skončili na štvrtom mieste, o krok od medaily. Zlato získalo Taliansko, ktoré vo finále zdolalo Francúzsko 7:5, bronz putoval do Španielska.</p>
 
                     <div class="match-results">
-                        <h3>Posledné zápasy juniorov</h3>
+                        <h3>Zápasy juniorov</h3>
+                        <p><strong>Skupinová fáza:</strong></p>
                         <ul>
-                            <li>5. 10. – KOL – SVK 3:5</li>
-                            <li>6. 10. – SVK – GER 6:1</li>
-                            <li>7. 10. – NAM – SVK 3:6</li>
-                            <li>8. 10. – ITA – SVK 4:3 pp</li>
-                            <li>9. 10. – SVK – ESP 4:5 pp</li>
+                            <li>SVK – ITA 4:7</li>
+                            <li>SVK – MEX 10:1</li>
+                            <li>SVK – FRA 0:5</li>
+                            <li>SVK – COL 5:3</li>
+                        </ul>
+                        <p><strong>Play off:</strong></p>
+                        <ul>
+                            <li>SVK – GER 6:1 (osemfinále)</li>
+                            <li>SVK – NAM 6:3 (štvrťfinále)</li>
+                            <li>SVK – ITA 3:4 pp (semifinále)</li>
+                            <li>SVK – ESP 4:5 pp (o 3. miesto)</li>
                         </ul>
                     </div>
 
-                    <table class="custom-news-table2">
+                    <p><strong>Tabuľka skupiny A juniorov (vrátane play off):</strong></p>
+                    <table class="custom-news-table">
                         <thead>
                             <tr>
                                 <th>#</th>
@@ -307,7 +396,7 @@
                     </table>
 
                     <h3>Traja najlepší slovenskí strelci juniorov</h3>
-                    <table class="custom-news-table2">
+                    <table class="custom-news-table">
                         <thead>
                             <tr>
                                 <th>Hráč</th>
@@ -335,7 +424,7 @@
                         </ul>
                     </div>
 
-                    <table class="custom-news-table2">
+                    <table class="custom-news-table">
                         <thead>
                             <tr>
                                 <th>#</th>
@@ -363,19 +452,20 @@
             </div>
         </article>
 
+
         <!-- ======================================================== -->
-        <!-- ČLÁNOK 1: MAJSTROVSTVÁ SVETA V IN-LINE HOKEJI (HLAVNÝ HERO) -->
+        <!-- ČLÁNOK 2: MAJSTROVSTVÁ SVETA V IN-LINE HOKEJI (ČERVENÝ)  -->
         <!-- ======================================================== -->
         <article class="hero-article">
             <div class="hero-banner-placeholder">
                 <img src="photos/slovensko-mihwa2026.jpg" alt="Slovensko oslavuje">
             </div>
-            
+
             <div class="hero-content">
                 <div class="article-meta">🏆 Reprezentácia / MIHWA World Cup</div>
-                
+
                 <h1 class="article-title">Slovenským veteránom v in-line hokeji sa podarilo obhájiť titul majstrov sveta!</h1>
-                
+
                 <div class="article-text">
                     <p>Veľmi vydarené MS veteránov prežil slovenský tím v kategórii Legiend (hráči 50+). Na MS síce odchádzal v pozícii obhajcov titulu a teda ašpirantov na boje o najvyššie priečky, avšak turnaj ukázal neustále stúpajúcu kvalitu každého z mužstiev a naplno preveril schopnosti a odolnosť tímu.</p>
                     <p>Už v skupinovej fáze odohrali slovenskí hráči veľmi vyrovnané zápasy, keď nestačili len na Kanadu. Napriek prehre sa im podarilo ísť do štvrťfinálových bojov z prvého miesta.</p>
@@ -383,7 +473,7 @@
                     <p>V ňom sa naši stretli s lepším z dvojice USA vs. Kanada. Finále rozhodovali znova maličkosti, avšak najmä skúsenosť a odolnosť. V závere si Slováci postrážili vedenie a vyhrali nad USA 5:4!</p>
                     <p>Skvelý kolektív tvoria silné individuality. Na hráčskom poli sa najviac darilo Antovi Lezovi, ktorý sa stal našim najproduktívnejším hráčom a 4x sa dostal medzi hviezdy stretnutia. Organizáciu, technické a finančné zabezpečenie zvládol (popri hráčskej úlohe) na výbornú Roman Pejchal.</p>
                     <p>MS sa konali v nemeckom Garmisch Partenkirchen a v danej kategórii sa predstavilo 12 mužstiev. Celkovo sa šampionátu zúčastnilo 48 družstiev v 3 mužských a jednej ženskej kategórii. Slovenský organizačný tím zároveň prevzal štafetu od organizátorov a v budúcom roku sa môžeme tešiť na majstrovstvá sveta veteránov v in-line hokeji na Slovensku. Bude to zároveň výzva, Slováci majú ambíciu postaviť mužstvá vo všetkých mužských kategóriách.</p>
-                    
+
                     <div class="match-results">
                         <h3>Výsledky zápasov</h3>
                         <p><strong>Skupinová fáza:</strong></p>
@@ -450,99 +540,101 @@
 
 
         <!-- ======================================================== -->
-        <!-- ČLÁNOK 2: REKAPITULÁCIA DOMÁCEJ SEZÓNY (EXTRALIGA - MODRÝ AKCENT) -->
+        <!-- ČLÁNOK 3: REKAPITULÁCIA DOMÁCEJ SEZÓNY (MODRÝ AKCENT)    -->
         <!-- ======================================================== -->
-<article class="hero-article blue-accent">
-    <div class="hero-banner-placeholder">
-        <img src="photos/finale.jpg" alt="Hammers BA oslavuje"> 
-    </div>
-    
-    <div class="hero-content">
-        <div class="article-meta">📊 Domáca súťaž / Bauer-Extraliga</div>
-        
-        <h2 class="article-title">Misia splnená: Hammers BA oslavuje víťazstvo v sezóne!</h2>
-        
-        <div class="article-text">
-            <p>Sezóna 2026 Bauer-Extraligy priniesla napínavé súboje až do samotného záveru. V základnej časti dominovali tímy <strong>Hammers BA</strong> a <strong>Káčeri Piešťany</strong>, ktoré zhodne získali 25 bodov, pričom Hammers BA obsadili prvé miesto vďaka lepšiemu skóre.</p>
-            
-            <p>Sezóna vyvrcholila finálovým dňom 28. júna 2026, ktorý rozhodol o konečnom poradí na prvých priečkach:</p>
-            <ul >
-                    <li>V napínavom zápase o 1. miesto zdolali <strong>Hammers BA</strong> tím Dubnica Wild Kings výsledkom 9:4.</li>
-                    <li>V súboji o 3. miesto zvíťazili <strong>Káčeri Piešťany</strong> nad Mad Dogs BA pomerom 4:1.</li>
-            </ul>
-
-            <h3>Playoff pod taktovkou strelcov</h3>
-            <p>Vyraďovacia časť priniesla vrcholné individuálne výkony. Najproduktívnejším hráčom playoff sa stal <strong>Andrej Končír</strong> (Káčeri Piešťany), ktorý ovládol tabuľku so ziskom 11 bodov (5 gólov a 6 asistencií). Výrazne na seba upozornil aj <strong>Peter Cisár</strong> (Hammers BA), ktorý ukázal nesmierny progres a pre svoj tím bol v rozhodujúcich momentoch kľúčovým hráčom, pričom v playoff nazbieral výrazne viac bodov než v základnej časti. Hoci strelecky dominoval najmä <strong>Michal Kluka</strong> (Dubnica Wild Kings) s 8 gólmi, práve Cisárova komplexná hra a schopnosť pomôcť tímu v kritických chvíľach boli jedným z hlavných pilierov majstrovského titulu.</p>
-
-            <h3>Štatistiky základnej časti</h3>
-            <p>Základnú časť ovládol svojou produktivitou <strong>Andrej Končír</strong> (Káčeri Piešťany) s 25 bodmi. Výbornú formu potvrdili aj <strong>Alex František Kupka</strong> (Hammers Sport Hockey) a <strong>Tomáš Chrenko</strong> (Inline Hockey Nitra).</p>
-            
-            <table class="custom-news-table2">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Klub</th>
-                        <th>Body</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td>Hammers BA</td>
-                        <td>25</td>
-                    </tr>
-                    <tr>
-                        <td>2</td>
-                        <td>Káčeri Piešťany</td>
-                        <td>25</td>
-                    </tr>
-                    <tr>
-                        <td>3</td>
-                        <td>Inline Hockey Nitra</td>
-                        <td>22</td>
-                    </tr>
-                    <tr>
-                        <td>4</td>
-                        <td>Hammers Sport Hockey</td>
-                        <td>14</td>
-                    </tr>
-                    <tr>
-                        <td>5</td>
-                        <td>Dubnica Wild Kings</td>
-                        <td>13</td>
-                    </tr>
-                    <tr>
-                        <td>6</td>
-                        <td>Mad Dogs BA</td>
-                        <td>9</td>
-                    </tr>
-                    <tr>
-                        <td>7</td>
-                        <td>Trnava Warriors</td>
-                        <td>7</td>
-                    </tr>
-                    <tr>
-                        <td>8</td>
-                        <td>ŠK26 Karlovka</td>
-                        <td>5</td>
-                    </tr>
-                </tbody>
-            </table>
-            <div class="article-gallery">
-                <img src="photos/hammers.png" alt="Hammers"> 
-                <img src="photos/dubnica.png" alt="Dubnica">
-                <img src="photos/kaceri.png" alt="Piestany"> 
-                <img src="photos/maddog.png" alt="Mad Dogs">
+        <article class="hero-article blue-accent">
+            <div class="hero-banner-placeholder">
+                <img src="photos/finale.jpg" alt="Hammers BA oslavuje">
             </div>
-        </div>
-            <p style="font-style: italic; color: #666;">2026 - Patrik Pejchal</p>
-    </div>
-</article>
+
+            <div class="hero-content">
+                <div class="article-meta">📊 Domáca súťaž / Bauer-Extraliga</div>
+
+                <h2 class="article-title">Misia splnená: Hammers BA oslavuje víťazstvo v sezóne!</h2>
+
+                <div class="article-text">
+                    <p>Sezóna 2026 Bauer-Extraligy priniesla napínavé súboje až do samotného záveru. V základnej časti dominovali tímy <strong>Hammers BA</strong> a <strong>Káčeri Piešťany</strong>, ktoré zhodne získali 25 bodov, pričom Hammers BA obsadili prvé miesto vďaka lepšiemu skóre.</p>
+
+                    <p>Sezóna vyvrcholila finálovým dňom 28. júna 2026, ktorý rozhodol o konečnom poradí na prvých priečkach:</p>
+                    <ul>
+                        <li>V napínavom zápase o 1. miesto zdolali <strong>Hammers BA</strong> tím Dubnica Wild Kings výsledkom 9:4.</li>
+                        <li>V súboji o 3. miesto zvíťazili <strong>Káčeri Piešťany</strong> nad Mad Dogs BA pomerom 4:1.</li>
+                    </ul>
+
+                    <h3>Playoff pod taktovkou strelcov</h3>
+                    <p>Vyraďovacia časť priniesla vrcholné individuálne výkony. Najproduktívnejším hráčom playoff sa stal <strong>Andrej Končír</strong> (Káčeri Piešťany), ktorý ovládol tabuľku so ziskom 11 bodov (5 gólov a 6 asistencií). Výrazne na seba upozornil aj <strong>Peter Cisár</strong> (Hammers BA), ktorý ukázal nesmierny progres a pre svoj tím bol v rozhodujúcich momentoch kľúčovým hráčom, pričom v playoff nazbieral výrazne viac bodov než v základnej časti. Hoci strelecky dominoval najmä <strong>Michal Kluka</strong> (Dubnica Wild Kings) s 8 gólmi, práve Cisárova komplexná hra a schopnosť pomôcť tímu v kritických chvíľach boli jedným z hlavných pilierov majstrovského titulu.</p>
+
+                    <h3>Štatistiky základnej časti</h3>
+                    <p>Základnú časť ovládol svojou produktivitou <strong>Andrej Končír</strong> (Káčeri Piešťany) s 25 bodmi. Výbornú formu potvrdili aj <strong>Alex František Kupka</strong> (Hammers Sport Hockey) a <strong>Tomáš Chrenko</strong> (Inline Hockey Nitra).</p>
+
+                    <table class="custom-news-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Klub</th>
+                                <th>Body</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>Hammers BA</td>
+                                <td>25</td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>Káčeri Piešťany</td>
+                                <td>25</td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>Inline Hockey Nitra</td>
+                                <td>22</td>
+                            </tr>
+                            <tr>
+                                <td>4</td>
+                                <td>Hammers Sport Hockey</td>
+                                <td>14</td>
+                            </tr>
+                            <tr>
+                                <td>5</td>
+                                <td>Dubnica Wild Kings</td>
+                                <td>13</td>
+                            </tr>
+                            <tr>
+                                <td>6</td>
+                                <td>Mad Dogs BA</td>
+                                <td>9</td>
+                            </tr>
+                            <tr>
+                                <td>7</td>
+                                <td>Trnava Warriors</td>
+                                <td>7</td>
+                            </tr>
+                            <tr>
+                                <td>8</td>
+                                <td>ŠK26 Karlovka</td>
+                                <td>5</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="article-gallery">
+                        <img src="photos/hammers.png" alt="Hammers">
+                        <img src="photos/dubnica.png" alt="Dubnica">
+                        <img src="photos/kaceri.png" alt="Piestany">
+                        <img src="photos/maddog.png" alt="Mad Dogs">
+                    </div>
+
+                    <p style="font-style: italic; color: #666;">2026 - Patrik Pejchal</p>
+                </div>
+            </div>
+        </article>
 
     </div>
 
     <footer class="footer">
-        <div class="footer-container">      
+        <div class="footer-container">
             <div class="footer-col">
                 <h4 class="footer-title">SAILH</h4>
                 <div class="footer-line"></div>
